@@ -8,6 +8,7 @@ document.body.appendChild(app.view);
 const sceneWidth = app.view.width;
 const sceneHeight = app.view.height;	
 
+
 // pre-load the images
 PIXI.loader.
 add(["images/Spaceship.png","images/explosions.png"]).
@@ -120,7 +121,6 @@ function createLabelsAndButtons(){
 }
 function startGame(){
     startScene.visible = false;
-    gameOverScene.visible = false;
     gameScene.visible = true;
     levelNum = 1;
     score = 0;
@@ -138,10 +138,10 @@ function increaseScoreBy(value){
 function decreaseLifeBy(value){
     life -= value;
     life = parseInt(life);
-    lifeLabel.text = `Life ${life}%`;
+    //lifeLabel.text = `Life ${life}%`;
 }
 function loadLevel(){
-	createCircles(levelNum * 5);
+	//createCircles(levelNum * 5);
 	paused = false;
 }
 function fireBullet(e){
@@ -208,18 +208,18 @@ function gameLoop(){
     ship.y = clamp(newY,0+h2,sceneHeight - h2);
 	
 	// #3 - Move Circles
-	for(let c of circles){
-        c.move(dt);
-        if(c.x <= c.radius || c.x >= sceneWidth-c.radius){
-            c.reflectX();
-            c.move(dt);
-        }
-        
-        if(c.y <= c.radius || c.y >= sceneHeight-c.radius){
-            c.reflectY();
-            c.move(dt);
-        }
-    }
+	//for(let c of circles){
+    //    c.move(dt);
+    //    if(c.x <= c.radius || c.x >= sceneWidth-c.radius){
+    //        c.reflectX();
+    //        c.move(dt);
+    //    }
+    //    
+    //    if(c.y <= c.radius || c.y >= sceneHeight-c.radius){
+    //        c.reflectY();
+    //        c.move(dt);
+    //   }
+    //}
 	
 	// #4 - Move Bullets
     for (let b of bullets){
@@ -227,32 +227,32 @@ function gameLoop(){
 	}
 	
 	// #5 - Check for Collisions
-    for(let c of circles){
-        for(let b of bullets){
-            if(rectsIntersect(c,b)){
-                fireballSound.play();
-                createExplosion(c.x,c.y,64,64);
-                gameScene.removeChild(c);
-                c.isAlive = false;
-                gameScene.removeChild(b);
-                b.isAlive = false;
-                increaseScoreBy(1);
-            }
-            if(b.y < -10) b.isAlive = false;
-        }
-        
-        if(c.isAlive && rectsIntersect(c,ship)){
-            hitSound.play();
-            gameScene.removeChild(c);
-            c.isAlive = false;
-            decreaseLifeBy(20);
-        }
-    }
+    //for(let c of circles){
+    //    for(let b of bullets){
+    //        if(rectsIntersect(c,b)){
+    //            fireballSound.play();
+    //            createExplosion(c.x,c.y,64,64);
+    //            gameScene.removeChild(c);
+    //            c.isAlive = false;
+    //            gameScene.removeChild(b);
+    //            b.isAlive = false;
+    //            increaseScoreBy(1);
+    //        }
+    //        if(b.y < -10) b.isAlive = false;
+    //    }
+    //    
+    //    if(c.isAlive && rectsIntersect(c,ship)){
+    //        hitSound.play();
+    //        gameScene.removeChild(c);
+    //        c.isAlive = false;
+    //       decreaseLifeBy(20);
+    //    }
+    //}
 	
 	// #6 - Now do some clean up
 	bullets = bullets.filter(b=>b.isAlive);
-    circles = circles.filter(c=>c.isAlive);
-    explosions = explosions.filter(e=>e.playing);
+    //circles = circles.filter(c=>c.isAlive);
+    //explosions = explosions.filter(e=>e.playing);
 	
 	// #7 - Is game over?
 	if (life <= 0){
@@ -261,8 +261,8 @@ function gameLoop(){
 }
 	
 	// #8 - Load next level
-    if (circles.length == 0){
-	levelNum ++;
-	loadLevel();
+    //if (circles.length == 0){
+	//levelNum ++;
+	//loadLevel();
 }
-}
+//}
