@@ -82,7 +82,6 @@ class Enemy extends PIXI.Sprite{
     setPosition(x, y){
         this.x = x;
         this.y = y;
-        console.log(this);
     }
 }
 class MeleeEnemy extends Enemy{

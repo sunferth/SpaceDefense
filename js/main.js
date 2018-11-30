@@ -93,12 +93,10 @@ function setup() {
 function SetUpWaves(data){
 	 let wavesString = [];
 	 wavesString = data.split("\n");
-	 console.log(wavesString);
      // Starts at i = 1 to account for the first line being documentation
 	 for(let i = 1; i<wavesString.length;i++){
 		  let waveString = wavesString[i].split(",");
 		  waveArray[i] = new Wave(parseInt(waveString[0].trim()),parseInt(waveString[1].trim()),parseInt(waveString[2].trim()),parseInt(waveString[3].trim()));
-		  console.log(waveArray[i]);
 	 }
     // Remove empty first element
     waveArray.shift();
@@ -180,7 +178,6 @@ function startWave(){
     
     // Transfer all wave enemies into the active array
     let loadWave = waveArray[levelNum - 1];
-    console.log(waveArray);
     for(let i = 0; i < loadWave.melee; i++)
     {
         aliens.push(new MeleeEnemy());
@@ -208,7 +205,7 @@ function startWave(){
     // Make enemies spawn with slightly less distance between each enemy (min 20 pixels)
     distMod *= 0.9;
     
-    for(let i = 0; i < aliens.count; i++)
+    for(let i = 0; i < aliens.length; i++)
     {
         // Get a random direction vector, polarized towards the left and right sides
         y = Math.random(0, 1);
@@ -216,12 +213,14 @@ function startWave(){
         if(Math.random(0, 1) >= 0.5) y *= -1;
         if(Math.random(0, 1) >= 0.5) x *= -1;
         
-        aliens[i].SetPosition(x*distance, y*distance);
+        aliens[i].setPosition(x*distance, y*distance);
         distance += 20 + Math.random(0, distMod);
     }
     
 	paused = false;
     finiteState = "waveActive";
+    
+    console.log(aliens);
 }
 
 function endGame(state = "lose"){
