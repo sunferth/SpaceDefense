@@ -22,7 +22,7 @@ let stage;
 let startScene;
 let gameScene,ship,scoreLabel,lifeLabel,shootSound,hitSound,fireballSound;
 let shopScreen;
-
+let mainShip;
 let bullets = [];
 let aliens = [];
 let upgrades = [];
@@ -48,8 +48,13 @@ function setup() {
     // #4 - Create labels for all 3 scenes
     createLabelsAndButtons();
     // #5 - Create ship
-    ship = new Ship();
-    gameScene.addChild(ship);
+    mainShip = new Ship();
+    gameScene.addChild(mainShip);
+	let enemy = new Enemy();
+	aliens[0] = enemy;
+	aliens[0].x = 800;
+	aliens[0].y = 120;
+	gameScene.addChild(enemy);
     // #6 - Load Sounds
     {
     shootSound = new Howl({
@@ -65,7 +70,7 @@ function setup() {
     });
     }
     // #7 - Load sprite sheet
-    explosionTextures = loadSpriteSheet();
+    explosionTextures = loadSpriteSheet("images/explosions.png");
     // #8 - Start update loop
     app.ticker.add(gameLoop);
     // #9 - Start listening for click events on the canvas
@@ -127,7 +132,7 @@ function startGame(){
     life = 100;
     increaseScoreBy(0);
     decreaseLifeBy(0);
-    loadLevel();
+    startWave();
 }
 function increaseScoreBy(value){
     score+= value;
@@ -138,31 +143,16 @@ function decreaseLifeBy(value){
     life = parseInt(life);
     //lifeLabel.text = `Life ${life}%`;
 }
-function loadLevel(){
+function startWave(){
 	//createCircles(levelNum * 5);
 	paused = false;
 }
 function fireBullet(e){
-    //let rect = app.view.getBoundingClientRect();
-    //let mouseX = e.clientX - rect.x;
-    //let mouseY = e.clientY - rect.y;
-    //console.log(`${mouseX},${mouseY}`);
-    if(paused) return;
-    if(score>=5){
-    let b1 = new Bullet(0xFFFFFF,ship.x-10,ship.y);
-    bullets.push(b1);
-    gameScene.addChild(b1);
-    let b2 = new Bullet(0xFFFFFF,ship.x+10,ship.y);
-    bullets.push(b2);
-    gameScene.addChild(b2);
-    }
-    let b3 = new Bullet(0xFFFFFF,ship.x,ship.y);
-    bullets.push(b3);
-    gameScene.addChild(b3);
+    mainShip.Fire(aliens);
     shootSound.play();
 }
-function loadSpriteSheet(){
-    let spriteSheet = PIXI.BaseTexture.fromImage("images/explosions.png");
+function loadSpriteSheet(textureFile){
+    let spriteSheet = PIXI.BaseTexture.fromImage(textureFile);
     let width = 64;
     let height = 64;
     let numFrames= 16;
@@ -192,68 +182,22 @@ function gameLoop(){
 	// #1 - Calculate "delta time"
     let dt = 1/app.ticker.FPS;
     if (dt > 1/12) dt=1/12;
-	// #2 - Move Ship
-	let mousePosition = app.renderer.plugins.interaction.mouse.global;
-    //ship.position = mousePosition;
-    
-    let amt = 6*dt;
-    
-	// #3 - Move Circles
-	//for(let c of circles){
-    //    c.move(dt);
-    //    if(c.x <= c.radius || c.x >= sceneWidth-c.radius){
-    //        c.reflectX();
-    //        c.move(dt);
-    //    }
-    //    
-    //    if(c.y <= c.radius || c.y >= sceneHeight-c.radius){
-    //        c.reflectY();
-    //        c.move(dt);
-    //   }
-    //}
-	
+
 	// #4 - Move Bullets
     for (let b of bullets){
 		b.move(dt);
 	}
-	
-	// #5 - Check for Collisions
-    //for(let c of circles){
-    //    for(let b of bullets){
-    //        if(rectsIntersect(c,b)){
-    //            fireballSound.play();
-    //            createExplosion(c.x,c.y,64,64);
-    //            gameScene.removeChild(c);
-    //            c.isAlive = false;
-    //            gameScene.removeChild(b);
-    //            b.isAlive = false;
-    //            increaseScoreBy(1);
-    //        }
-    //        if(b.y < -10) b.isAlive = false;
-    //    }
-    //    
-    //    if(c.isAlive && rectsIntersect(c,ship)){
-    //        hitSound.play();
-    //        gameScene.removeChild(c);
-    //        c.isAlive = false;
-    //       decreaseLifeBy(20);
-    //    }
-    //}
+
 	
 	// #6 - Now do some clean up
 	bullets = bullets.filter(b=>b.isAlive);
     //circles = circles.filter(c=>c.isAlive);
     //explosions = explosions.filter(e=>e.playing);
-	
-	// #7 - Is game over?
-	if (life <= 0){
-	end();
-	return; // return here so we skip #8 below
 }
 	
 	// #8 - Load next level
-    //if (circles.length == 0){
-	//levelNum ++;
-	//loadLevel();
+    	if (aliens.length == 0){
+	levelNum ++;
+	startWave();
 }
 //}
