@@ -32,9 +32,13 @@ let life = 100;
 let waveArray = [];
 let levelNum = 1;
 let paused = true;
+let finiteState = "mainMenu";
+let distMod = 100; // Used for determining how far apart enemies will spawn (25 + Math.random(0, distMod));
 
 function setup() {
 	
+    finiteState = "mainMenu";
+    
     $.get('../waves.txt', function(data) {
     SetUpWaves(data)
 	}, 'text');
@@ -84,6 +88,8 @@ function setup() {
     // Now our `startScene` is visible
     // Clicking the button calls startGame()
 }
+
+// Uses waves.txt and stores all wave-related data in waveArray[...]
 function SetUpWaves(data){
 	 let wavesString = [];
 	 wavesString = data.split("\n");
@@ -94,7 +100,11 @@ function SetUpWaves(data){
 		  waveArray[i] = new Wave(parseInt(waveString[0].trim()),parseInt(waveString[1].trim()),parseInt(waveString[2].trim()),parseInt(waveString[3].trim()));
 		  console.log(waveArray[i]);
 	 }
+    // Remove empty first element
+    waveArray.shift();
+    console.log(waveArray);
 }
+
 function createLabelsAndButtons(){
     let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
@@ -141,6 +151,18 @@ function createLabelsAndButtons(){
     increaseScoreBy(0);
 
 }
+
+function increaseScoreBy(value){
+    score+= value;
+    scoreLabel.text = `Score ${score}`;
+}
+
+function decreaseLifeBy(value){
+    life -= value;
+    life = parseInt(life);
+    //lifeLabel.text = `Life ${life}%`;
+}
+
 function startGame(){
     startScene.visible = false;
     gameScene.visible = true;
@@ -151,19 +173,62 @@ function startGame(){
     decreaseLifeBy(0);
     startWave();
 }
-function increaseScoreBy(value){
-    score+= value;
-    scoreLabel.text = `Score ${score}`;
-}
-function decreaseLifeBy(value){
-    life -= value;
-    life = parseInt(life);
-    //lifeLabel.text = `Life ${life}%`;
-}
+
+// Spawn in all enemies for the current wave
 function startWave(){
-	//createCircles(levelNum * 5);
+	aliens = [];
+    
+    // Transfer all wave enemies into the active array
+    let loadWave = waveArray[levelNum - 1];
+    console.log(waveArray);
+    for(let i = 0; i < loadWave.melee; i++)
+    {
+        aliens.push(new MeleeEnemy());
+    }
+    for(let i = 0; i < loadWave.range; i++)
+    {
+        aliens.push(new RangeEnemy());
+    }
+    for(let i = 0; i < loadWave.buff; i++)
+    {
+        aliens.push(new BuffEnemy());
+    }
+    for(let i = 0; i < loadWave.nerf; i++)
+    {
+        aliens.push(new NerfEnemy());
+    }
+    
+    // Shuffle the order of enemies then set their positions based off their queue
+    shuffle(aliens);
+    
+    let distance = 500;
+    let x;
+    let y;
+    
+    // Make enemies spawn with slightly less distance between each enemy (min 20 pixels)
+    distMod *= 0.9;
+    
+    for(let i = 0; i < aliens.count; i++)
+    {
+        // Get a random direction vector, polarized towards the left and right sides
+        y = Math.random(0, 1);
+        x = Math.sqrt(1-Math.pow(y,2));
+        if(Math.random(0, 1) >= 0.5) y *= -1;
+        if(Math.random(0, 1) >= 0.5) x *= -1;
+        
+        aliens[i].SetPosition(x*distance, y*distance);
+        distance += 20 + Math.random(0, distMod);
+    }
+    
 	paused = false;
+    finiteState = "waveActive";
 }
+
+function endGame(state = "lose"){
+    finiteState = "endGame";
+    paused = true;
+}
+
 // Function called every time the user clicks within the web browser
 function clickEvent(e){
     // TODO: Replace with conditions for when a bullet should be fired
@@ -213,11 +278,36 @@ function gameLoop(){
 	bullets = bullets.filter(b=>b.isAlive);
     //circles = circles.filter(c=>c.isAlive);
     //explosions = explosions.filter(e=>e.playing);
+    
+    // #8 - Load next level
+    // TODO: Add condition of "if there are no more waves and no aliens exist on the screen, end the game
+    if(false){
+        endGame("win");
+    }
+    // TODO: Change this to have a condition that meets clicking on a "Next Level" button
+    else if (aliens === undefined || aliens.length == 0){
+        levelNum ++;
+        startWave();
+    }
 }
-	
-	// #8 - Load next level
-    	if (aliens.length == 0){
-	levelNum ++;
-	startWave();
+
+// Helper methods
+// Shuffles the contents of an array
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
 }
-//}

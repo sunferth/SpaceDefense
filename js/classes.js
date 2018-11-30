@@ -26,6 +26,13 @@ class Ship extends PIXI.Sprite{
 		}
 	}
 	
+    takeDamage(dmgAmount) {
+        this.health -= dmgAmount;
+        if(this.health <= 0)
+        {
+            endGame();
+        }
+    }
 }
 
 class Upgrade extends PIXI.Graphics{
@@ -60,7 +67,7 @@ class Wave{
 			allToSpawn.push(new NerfEnemy());
 		}
 		gameScene.addChild(allToSpawn);
-	   
+        return allToSpawn;
     }
 }
 class Enemy extends PIXI.Sprite{
@@ -71,29 +78,13 @@ class Enemy extends PIXI.Sprite{
 		this.type = type;
 		this.x = 0;
 		this.y = 0;
-		let x;
-		let y;
-		let rand = getRandom(0,1);
-		if(rand > 0.75){
-			x = sceneWidth+5;
-			y = getRandom(0,1)*sceneHeight;
-		}
-		else if(rand > 0.5){
-			x = -5;
-			y = getRandom(0,1)*sceneHeight;
-		}
-		else if(rand > 0.25){
-			x = getRandom(0,1)*sceneWidth;
-			y = sceneHeight+5;
-		}
-		else{
-			x = getRandom(0,1)*sceneWidth;
-			y = -5;
-		}
+		this.health  = health;
+    }
+    
+    setPosition(x, y){
         this.x = x;
         this.y = y;
-		
-		this.health  = health;
+        console.log(this);
     }
 }
 class MeleeEnemy extends Enemy{
@@ -103,13 +94,13 @@ class MeleeEnemy extends Enemy{
 	attack(){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 0.5){
 			this.alive = false;
-			mainShip.health -= 2;
+            mainShip.takeDamage(2);
 	    }
 	}
 }
 class RangeEnemy extends Enemy{
 	constructor(){
-		super();
+		super("range");
 	}
 	attack(){
 		
@@ -117,7 +108,7 @@ class RangeEnemy extends Enemy{
 }
 class BuffEnemy extends Enemy{
 	constructor(){
-		super();
+		super("buff");
 	}
 	attack(){
 		
@@ -125,7 +116,7 @@ class BuffEnemy extends Enemy{
 }
 class NerfEnemy extends Enemy{
 	constructor(){
-		super();
+		super("nerf");
 	}
 	attack(){
 		
