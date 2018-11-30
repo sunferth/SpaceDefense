@@ -87,9 +87,10 @@ function SetUpWaves(data){
 	 let wavesString = [];
 	 wavesString = data.split("\n");
 	 console.log(wavesString);
-	 for(let i = 0; i<wavesString.length;i++){
-		  let waveString = wavesString[i].split(" ");
-		  waveArray[i] = new Wave(waveString[0],waveString[1],waveString[2],waveString[3])
+     // Starts at i = 1 to account for the first line being documentation
+	 for(let i = 1; i<wavesString.length;i++){
+		  let waveString = wavesString[i].split(",");
+		  waveArray[i] = new Wave(parseInt(waveString[0].trim()),parseInt(waveString[1].trim()),parseInt(waveString[2].trim()),parseInt(waveString[3].trim()));
 		  console.log(waveArray[i]);
 	 }
 }
