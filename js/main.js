@@ -29,10 +29,15 @@ let upgrades = [];
 let explosionTextures;
 let score = 0;
 let life = 100;
+let waveArray = [];
 let levelNum = 1;
 let paused = true;
 
 function setup() {
+    $.get('../waves.txt', function(data) {
+    SetUpWaves(data)
+	}, 'text');
+	
     stage = app.stage;
     // #1 - Create the `start` scene
     startScene = new PIXI.Container();
@@ -77,6 +82,16 @@ function setup() {
     app.view.onclick = fireBullet;
     // Now our `startScene` is visible
     // Clicking the button calls startGame()
+}
+function SetUpWaves(data){
+	 let wavesString = [];
+	 wavesString = data.split("\n");
+	 console.log(wavesString);
+	 for(let i = 0; i<wavesString.length;i++){
+		  let waveString = wavesString[i].split(" ");
+		  waveArray[i] = new Wave(waveString[0],waveString[1],waveString[2],waveString[3])
+		  console.log(waveArray[i]);
+	 }
 }
 function createLabelsAndButtons(){
     let buttonStyle = new PIXI.TextStyle({

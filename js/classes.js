@@ -6,6 +6,8 @@ class Ship extends PIXI.Sprite{
         this.x = x;
         this.y = y;
 		this.targetType = "first";
+		this.health = 100;
+		this.maxHealth = 100;
     }
 	
 	Fire(enemyArray){
@@ -32,14 +34,27 @@ class Upgrade extends PIXI.Graphics{
     }
 }
 class Wave{
-    constructor(){
-	   this.melee = 0;
-	   this.range = 0;
-	   this.buff = 0;
-	   this.nerf = 0;
+    constructor(mel,ran,buf,ner){
+	   this.melee = mel;
+	   this.range = ran;
+	   this.buff = buf;
+	   this.nerf = ner;
     }
     spawn(){
-	   let allToSpawn;
+	   let allToSpawn = [];
+		for(let i = 0; i<this.melee; i++){
+			allToSpawn.push(new MeleeEnemy());
+		}
+		for(let i = 0; i<this.range; i++){
+			allToSpawn.push(new RangeEnemy());
+		}
+		for(let i = 0; i<this.buff; i++){
+			allToSpawn.push(new BuffEnemy());
+		}
+		for(let i = 0; i<this.nerf; i++){
+			allToSpawn.push(new NerfEnemy());
+		}
+		gameScene.addChild(allToSpawn);
 	   
     }
 }
@@ -75,11 +90,40 @@ class Enemy extends PIXI.Sprite{
 		
 		this.health  = health;
     }
-	
+}
+class MeleeEnemy extends Enemy{
+	constructor(){
+		super();
+	}
 	attack(){
-		if(this.type == "melee"){
-			
-		}
+		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 0.5){
+			this.alive = false;
+			mainShip.health -= 2;
+	    }
+	}
+}
+class RangeEnemy extends Enemy{
+	constructor(){
+		super();
+	}
+	attack(){
+		
+	}
+}
+class BuffEnemy extends Enemy{
+	constructor(){
+		super();
+	}
+	attack(){
+		
+	}
+}
+class NerfEnemy extends Enemy{
+	constructor(){
+		super();
+	}
+	attack(){
+		
 	}
 }
 class Bullet extends PIXI.Graphics{
