@@ -172,6 +172,11 @@ function clickEvent(e){
         mainShip.Fire(aliens);
         shootSound.play();
     }
+	for(let i = 0; i<aliens.length;i++){
+		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 1600){
+			aliens[i].health = 0;
+	    }
+	}
 }
 function loadSpriteSheet(textureFile){
     let spriteSheet = PIXI.BaseTexture.fromImage(textureFile);
