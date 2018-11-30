@@ -5,17 +5,17 @@ class Ship extends PIXI.Sprite{
         this.scale.set(0.2);
         this.x = x;
         this.y = y;
-		this.targetType = "first";
+		this.targetType = "close";
 		this.health = 100;
 		this.maxHealth = 100;
     }
 	
 	Fire(enemyArray){
 		let target;
-		if(this.targetType == "first"){
+		if(this.targetType == "close"){
+			//Find closest 
 			target = enemyArray[0];
 		}
-		this.rotation = -45/57.2958;
 		this.rotation = 5*Math.atan((target.y -this.y)/(target.x-this.x));
 		console.log(this.rotation);
 					
