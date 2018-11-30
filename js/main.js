@@ -127,8 +127,6 @@ function startGame(){
     life = 100;
     increaseScoreBy(0);
     decreaseLifeBy(0);
-    ship.x = 300;
-    ship.y = 550;
     loadLevel();
 }
 function increaseScoreBy(value){
@@ -199,14 +197,7 @@ function gameLoop(){
     //ship.position = mousePosition;
     
     let amt = 6*dt;
-    let newX = lerp(ship.x,mousePosition.x, amt);
-    let newY = lerp(ship.y, mousePosition.y, amt);
     
-    let w2 = ship.width/2;
-    let h2 = ship.height/2;
-    ship.x = clamp(newX,0+w2,sceneWidth - w2);
-    ship.y = clamp(newY,0+h2,sceneHeight - h2);
-	
 	// #3 - Move Circles
 	//for(let c of circles){
     //    c.move(dt);
