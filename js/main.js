@@ -34,6 +34,7 @@ let levelNum = 1;
 let paused = true;
 
 function setup() {
+	
     $.get('../waves.txt', function(data) {
     SetUpWaves(data)
 	}, 'text');
@@ -57,8 +58,8 @@ function setup() {
     gameScene.addChild(mainShip);
 	let enemy = new Enemy();
 	aliens[0] = enemy;
-	aliens[0].x = 800;
-	aliens[0].y = 120;
+	aliens[0].x = 100;
+	aliens[0].y = 420;
 	gameScene.addChild(enemy);
     // #6 - Load Sounds
     {
@@ -203,8 +204,6 @@ function gameLoop(){
     for (let b of bullets){
 		b.move(dt);
 	}
-
-	
 	// #6 - Now do some clean up
 	bullets = bullets.filter(b=>b.isAlive);
     //circles = circles.filter(c=>c.isAlive);

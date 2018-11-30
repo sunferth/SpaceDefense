@@ -16,9 +16,14 @@ class Ship extends PIXI.Sprite{
 			//Find closest 
 			target = enemyArray[0];
 		}
-		this.rotation = 5*Math.atan((target.y -this.y)/(target.x-this.x));
-		console.log(this.rotation);
-					
+		target.x = getRandom(0,sceneWidth);
+		target.y = getRandom(0,sceneHeight);
+		if(target.x < this.x){
+			this.rotation = 3*Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
+		}
+		else{
+			this.rotation = Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
+		}
 	}
 	
 }
@@ -133,10 +138,11 @@ class Bullet extends PIXI.Graphics{
         this.drawRect(-2,-3,4,6);
         this.endFill();
         this.active = false;
-        this.x= x;
+        this.x = x;
         this.y = y;
         this.fwd = {x:0, y:-1};
         this.speed = 400;
+		this.rotation = mainShip.rotation;
         this.isAlive = true;
         Object.seal(this);
     }
