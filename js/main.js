@@ -80,7 +80,7 @@ function setup() {
     // #8 - Start update loop
     app.ticker.add(gameLoop);
     // #9 - Start listening for click events on the canvas
-    app.view.onclick = fireBullet;
+    app.view.onclick = clickEvent;
     // Now our `startScene` is visible
     // Clicking the button calls startGame()
 }
@@ -164,9 +164,14 @@ function startWave(){
 	//createCircles(levelNum * 5);
 	paused = false;
 }
-function fireBullet(e){
-    mainShip.Fire(aliens);
-    shootSound.play();
+// Function called every time the user clicks within the web browser
+function clickEvent(e){
+    // TODO: Replace with conditions for when a bullet should be fired
+    if(true)
+    {
+        mainShip.Fire(aliens);
+        shootSound.play();
+    }
 }
 function loadSpriteSheet(textureFile){
     let spriteSheet = PIXI.BaseTexture.fromImage(textureFile);
