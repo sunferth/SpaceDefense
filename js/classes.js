@@ -16,8 +16,6 @@ class Ship extends PIXI.Sprite{
 			//Find closest 
 			target = enemyArray[0];
 		}
-		target.x = getRandom(0,sceneWidth);
-		target.y = getRandom(0,sceneHeight);
 		if(target.x < this.x){
 			this.rotation = 3*Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
 		}
