@@ -8,6 +8,8 @@ class Ship extends PIXI.Sprite{
 		this.targetType = "close";
 		this.health = 100;
 		this.maxHealth = 100;
+		this.FireTime = 2;
+		this.currentTime = 0;
     }
 	
 	Fire(enemyArray){
@@ -22,6 +24,14 @@ class Ship extends PIXI.Sprite{
 		else{
 			this.rotation = Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
 		}
+		this.currentTime += 1/60;
+		
+		if(this.currentTime>this.FireTime){
+			this.currentTime = 0;
+			let b = new Bullet(0xFF0000,this.x,this.y);
+			bullets.push(b);
+			gameScene.addChild(b);
+		}
 	}
 	
     takeDamage(dmgAmount) {
@@ -33,6 +43,7 @@ class Ship extends PIXI.Sprite{
     }
 }
 
+
 class Bullet extends PIXI.Graphics{
     constructor(color=0xFF0000, x=0, y=0){
         super();
@@ -42,9 +53,9 @@ class Bullet extends PIXI.Graphics{
         this.active = false;
         this.x = x;
         this.y = y;
-        this.fwd = {x:0, y:-1};
         this.speed = 400;
 		this.rotation = mainShip.rotation;
+		this.fwd = {x:Math.cos(this.rotation-Math.PI/2), y:Math.sin(this.rotation-Math.PI/2)};
         this.isAlive = true;
         Object.seal(this);
     }
@@ -121,6 +132,13 @@ class Enemy extends PIXI.Sprite{
 			this.rotation = Math.PI/2 + Math.atan((sceneHeight/2 -this.y)/(sceneWidth/2 - this.x));
 		}
     }
+	
+	takeDamage(damage){
+		this.health -= damage;
+		if(this.health <= 0){
+			this.isAlive = false;
+		}
+	}
     
     move(dt=1/60){
         this.x += this.fwd.x * this.speed * dt;

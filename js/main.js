@@ -60,11 +60,6 @@ function setup() {
     // #5 - Create ship
     mainShip = new Ship();
     gameScene.addChild(mainShip);
-	let enemy = new Enemy();
-	aliens[0] = enemy;
-	aliens[0].x = 100;
-	aliens[0].y = 420;
-	gameScene.addChild(enemy);
     // #6 - Load Sounds
     {
     shootSound = new Howl({
@@ -243,8 +238,8 @@ function clickEvent(e){
         shootSound.play();
     }
 	for(let i = 0; i<aliens.length;i++){
-		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 1600){
-			aliens[i].health = 0;
+		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 2000){
+			aliens[i].takeDamage(100);
 	    }
 	}
 }
@@ -287,11 +282,26 @@ function gameLoop(){
     for(let alien of aliens){
         alien.move(dt);
     }
+	mainShip.Fire(aliens);
     
     // #5 - Make enemies attack
     for(let alien of aliens)
     {
         alien.attack();
+    }
+	
+	for(let c of aliens){
+        for(let b of bullets){
+            if(rectsIntersect(c,b)){
+                fireballSound.play();
+                gameScene.removeChild(c);
+                c.isAlive = false;
+                gameScene.removeChild(b);
+                b.isAlive = false;
+                increaseScoreBy(1);
+            }
+            if(b.y < -10) b.isAlive = false;
+        }
     }
     
 	// #6 - Now do some clean up
