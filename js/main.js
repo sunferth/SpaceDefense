@@ -33,7 +33,7 @@ let waveArray = [];
 let levelNum = 1;
 let paused = true;
 let finiteState = "mainMenu";
-let distMod = 100; // Used for determining how far apart enemies will spawn (25 + Math.random(0, distMod));
+let distMod = 400; // Used for determining how far apart enemies will spawn (25 + Math.random(0, distMod));
 
 function setup() {
 	
@@ -174,6 +174,10 @@ function startGame(){
 
 // Spawn in all enemies for the current wave
 function startWave(){
+    while(aliens.length > 0)
+    {
+        gameScene.removeChild(aliens.shift());
+    }
 	aliens = [];
     
     // Transfer all wave enemies into the active array
@@ -198,7 +202,7 @@ function startWave(){
     // Shuffle the order of enemies then set their positions based off their queue
     shuffle(aliens);
     
-    let distance = 500;
+    let distance = 750;
     let x;
     let y;
     
@@ -208,19 +212,21 @@ function startWave(){
     for(let i = 0; i < aliens.length; i++)
     {
         // Get a random direction vector, polarized towards the left and right sides
-        y = Math.random(0, 1);
+        y = Math.random();
         x = Math.sqrt(1-Math.pow(y,2));
-        if(Math.random(0, 1) >= 0.5) y *= -1;
-        if(Math.random(0, 1) >= 0.5) x *= -1;
+        if(Math.random() >= 0.5) y *= -1;
+        if(Math.random() >= 0.5) x *= -1;
         
-        aliens[i].setPosition(x*distance, y*distance);
-        distance += 20 + Math.random(0, distMod);
+        aliens[i].setPosition(x*distance + mainShip.x, y*distance + mainShip.y);
+        distance += 20 + Math.random() * distMod;
+        
+        console.log(distMod);
+        
+        gameScene.addChild(aliens[i]);
     }
     
 	paused = false;
     finiteState = "waveActive";
-    
-    console.log(aliens);
 }
 
 function endGame(state = "lose"){
@@ -274,13 +280,30 @@ function gameLoop(){
     let dt = 1/app.ticker.FPS;
     if (dt > 1/12) dt=1/12;
 
-	// #4 - Move Bullets
+	// #4 - Move bullets and enemies
     for (let b of bullets){
 		b.move(dt);
 	}
+    for(let alien of aliens){
+        alien.move(dt);
+    }
+    
+    // #5 - Make enemies attack
+    for(let alien of aliens)
+    {
+        alien.attack();
+    }
+    
 	// #6 - Now do some clean up
 	bullets = bullets.filter(b=>b.isAlive);
-    //circles = circles.filter(c=>c.isAlive);
+    for(let i = 0; i < aliens.length; i++)
+    {
+        if(aliens[i].isAlive == false)
+        {
+            gameScene.removeChild(aliens[i]);
+            aliens.splice(i,1);
+        }
+    }
     //explosions = explosions.filter(e=>e.playing);
     
     // #8 - Load next level
@@ -290,6 +313,10 @@ function gameLoop(){
     }
     // TODO: Change this to have a condition that meets clicking on a "Next Level" button
     else if (aliens === undefined || aliens.length == 0){
+        if(aliens === undefined)
+            console.log(undefined);
+        else
+            console.log(aliens.length);
         levelNum ++;
         startWave();
     }
