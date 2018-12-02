@@ -23,7 +23,15 @@ class Ship extends PIXI.Sprite{
 			//Find closest 
 			target = enemyArray[0];
 		}
-		if(target.x < this.x){
+        
+        // Make sure the enemy is within range; if not, don't shoot
+		if(Math.pow(this.x - target.x, 2) + Math.pow(this.y - target.y, 2) > 160000)
+        {
+            return;
+        }
+        
+        // Set ship rotation to face the enemy
+        if(target.x < this.x){
 			this.rotation = 3*Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
 		}
 		else{
