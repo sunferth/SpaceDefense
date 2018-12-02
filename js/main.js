@@ -39,7 +39,7 @@ function setup() {
 	
     finiteState = "mainMenu";
     
-    $.get('../waves.txt', function(data) {
+    $.get('waves.txt', function(data) {
     SetUpWaves(data)
 	}, 'text');
 	
@@ -175,6 +175,11 @@ function startWave(){
     }
 	aliens = [];
     
+    if(waveArray.length < levelNum)
+    {
+        endGame();
+        return;
+    }
     // Transfer all wave enemies into the active array
     let loadWave = waveArray[levelNum - 1];
     for(let i = 0; i < loadWave.melee; i++)

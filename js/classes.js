@@ -13,6 +13,11 @@ class Ship extends PIXI.Sprite{
     }
 	
 	Fire(enemyArray){
+        
+        // Only fire bullets if the game is not paused
+        if(paused)
+            return;
+        
 		let target;
 		if(this.targetType == "close"){
 			//Find closest 
