@@ -105,7 +105,7 @@ function createLabelsAndButtons(){
         fontFamily: "Futura"
     });
     
-    let startLabel1 = new PIXI.Text("Circle Blast!");
+    let startLabel1 = new PIXI.Text("Space Defense!");
     startLabel1.style = new PIXI.TextStyle({
         fill: 0xFF0000,
         fontSize: 96,
@@ -117,7 +117,7 @@ function createLabelsAndButtons(){
     startLabel1.y = 120;
     startScene.addChild(startLabel1);
 
-    let startButton = new PIXI.Text("Enter, ... if you dare!");
+    let startButton = new PIXI.Text("Protect your ship!");
     startButton.style = buttonStyle;
     startButton.x = 80;
     startButton.y = sceneHeight - 100;
