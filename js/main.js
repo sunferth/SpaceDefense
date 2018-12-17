@@ -292,7 +292,7 @@ function gameLoop(){
     // #5 - Make enemies attack
     for(let alien of aliens)
     {
-        alien.attack();
+        alien.attack(dt);
     }
 	
 	for(let c of aliens){

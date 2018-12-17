@@ -162,8 +162,10 @@ class Enemy extends PIXI.Sprite{
 class MeleeEnemy extends Enemy{
 	constructor(){
 		super("melee");
+        this.cooldown = 1.0;
+        this.currentCooldown = 0.0;
 	}
-	attack(){
+	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
 			this.isAlive = false;
             mainShip.takeDamage(2);
@@ -176,20 +178,32 @@ class RangeEnemy extends Enemy{
 	constructor(){
 		super("range", 10, 200);
 	}
-	attack(){
+	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 10000){
-			this.isAlive = false;
-            mainShip.takeDamage(2);
-            console.log(mainShip.health);
+			this.speed = 0;
+            // Shoot a shot every (this.cooldown) seconds 
+            this.currentCooldown -= dt;
+            if(this.currentCooldown <= 0)
+            {
+                this.currentCooldown = this.cooldown;
+                
+            }
 	    }
 	}
+}
+
+class BulletEnemy extends Enemy{
+    constructor(){
+        super("bulletE", 1, 100);
+        
+    }
 }
 
 class BuffEnemy extends Enemy{
 	constructor(){
 		super("buff");
 	}
-	attack(){
+	attack(dt){
 		
 	}
 }
@@ -198,7 +212,7 @@ class NerfEnemy extends Enemy{
 	constructor(){
 		super("nerf");
 	}
-	attack(){
+	attack(dt){
 		
 	}
 }
