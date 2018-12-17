@@ -1,0 +1,9 @@
+	***Adds a Background Image***
+	let background = PIXI.Sprite.fromImage("images/SpaceBackground.png");
+	background.width = 1024;
+	background.height = 768;
+	background.x = 0;
+	background.y = 0;
+	startScene.addChild(background);
+	
+	

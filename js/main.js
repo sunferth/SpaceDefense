@@ -11,7 +11,7 @@ const sceneHeight = app.view.height;
 
 // pre-load the images
 PIXI.loader.
-add(["images/Spaceship.png","images/explosions.png"]).
+add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png"]).
 on("progress",e=>{console.log(`progress=${e.progress}`)}).
 load(setup);
 
@@ -21,6 +21,7 @@ let stage;
 // game variables
 let startScene;
 let gameScene,ship,scoreLabel,lifeLabel,shootSound,hitSound,fireballSound;
+let transitionLabel;
 let shopScreen;
 let mainShip;
 let bullets = [];
@@ -113,13 +114,13 @@ function createLabelsAndButtons(){
         stroke:0xFF0000,
         stokeThickness: 6
     });
-    startLabel1.x = 50;
+    startLabel1.x = 200;
     startLabel1.y = 120;
     startScene.addChild(startLabel1);
 
     let startButton = new PIXI.Text("Protect your ship!");
     startButton.style = buttonStyle;
-    startButton.x = 80;
+    startButton.x = 300;
     startButton.y = sceneHeight - 100;
     startButton.interactive = true;
     startButton.buttonMode = true;
@@ -127,6 +128,20 @@ function createLabelsAndButtons(){
     startButton.on('pointerover',e=> e.target.alpha = 0.7);
     startButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     startScene.addChild(startButton);
+	
+	let transitionLabel = new PIXI.Text("WAVE COMPLETE!");
+    transitionLabel.style = new PIXI.TextStyle({
+        fill: 0xFFFFFF,
+        fontSize: 110,
+        fontFamily: "Futura",
+        stroke:0xFF0000,
+        stokeThickness: 6
+    });
+    transitionLabel.x = 35;
+    transitionLabel.y = 350;
+    startScene.addChild(transitionLabel);
+	
+    
     
     let textStyle = new PIXI.TextStyle({
         fill: 0xFFFFFF,
