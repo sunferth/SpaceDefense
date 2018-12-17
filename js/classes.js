@@ -25,7 +25,7 @@ class Ship extends PIXI.Sprite{
 		}
         
         // Make sure the enemy is within range; if not, don't shoot
-		if(Math.pow(this.x - target.x, 2) + Math.pow(this.y - target.y, 2) > 160000)
+		if(Math.pow(this.x - target.x, 2) + Math.pow(this.y - target.y, 2) > 422500)
         {
             return;
         }
