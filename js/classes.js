@@ -8,7 +8,7 @@ class Ship extends PIXI.Sprite{
 		this.targetType = "close";
 		this.health = 100;
 		this.maxHealth = 100;
-		this.FireTime = 2;
+		this.FireTime = 1;
 		this.currentTime = 0;
     }
 	
