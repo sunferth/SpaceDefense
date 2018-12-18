@@ -20,7 +20,7 @@ let stage;
 
 // game variables
 let startScene;
-let gameScene,ship,scoreLabel,lifeLabel,shootSound,hitSound,fireballSound;
+let gameScene,ship,moneyLabel,lifeLabel,shootSound,hitSound,fireballSound;
 let transitionLabel;
 let transitionScene;
 let MouseButtonAOE;
@@ -227,8 +227,8 @@ function SetUpShop(){
     ShipDamButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(ShipDamButt);
 	
-	let ShipDefButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
-    ShipDefButt.style = shipDefUpgrade;
+	ShipDefButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+    ShipDefButt.style = buttonStyle;
     ShipDefButt.x = 485;
     ShipDefButt.y = 375;
     ShipDefButt.interactive = true;
@@ -288,7 +288,7 @@ function SetUpShop(){
 	shopScene.addChild(MouseAOEIcon);
 	
 	//Draw 2 Button
-	let MouseButtonDam = new PIXI.Text("Upgrade Cost: " + Math.pow(10,upgrades[6]));
+	MouseButtonDam = new PIXI.Text("Upgrade Cost: " + Math.pow(10,upgrades[6]));
     MouseButtonDam.style = buttonStyle;
     MouseButtonDam.x = 150;
     MouseButtonDam.y = sceneHeight - 170;
@@ -309,12 +309,24 @@ function SetUpShop(){
     MouseButtonAOE.on('pointerover',e=> e.target.alpha = 0.7);
     MouseButtonAOE.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(MouseButtonAOE);
+	
+	//Draw Back to Game Button
+	let BackToGameButt = new PIXI.Text("Back To Game");
+    BackToGameButt.style = buttonStyle;
+    BackToGameButt.x = 775;
+    BackToGameButt.y = 10;
+    BackToGameButt.interactive = true;
+    BackToGameButt.buttonMode = true;
+    BackToGameButt.on("pointerup",closeStore);
+    BackToGameButt.on('pointerover',e=> e.target.alpha = 0.7);
+    BackToGameButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(BackToGameButt);
 }
 
 function spinUpgrade(){
 	if(money >= Math.pow(10,upgrades[0])){
 		mainShip.rotationDivider/=2;
-		money -= Math.pow(10,upgrades[0]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[0]));
 		upgrades[0]++;
 		ShipSpin.text = "Cost: "+Math.pow(10,upgrades[0])
 	}
@@ -324,7 +336,7 @@ function spinUpgrade(){
 function fireUpgrade(){
 	if(money >= Math.pow(10,upgrades[1])){
 		mainShip.ShotsPerSec+=1;
-		money -= Math.pow(10,upgrades[1]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[1]));
 		upgrades[1]++;
 		FireButt.text = "Cost: "+Math.pow(10,upgrades[1])
 	}
@@ -333,7 +345,7 @@ function fireUpgrade(){
 function shipDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[2])){
 		mainShip.bulletDamage+=2;
-		money -= Math.pow(10,upgrades[2]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[2]));
 		upgrades[2]++;
 		ShipDamButt.text = "Cost: "+Math.pow(10,upgrades[2])
 	}
@@ -342,16 +354,16 @@ function shipDamUpgrade(){
 function shipDefUpgrade(){
 	if(money >= Math.pow(10,upgrades[3])){
 		mainShip.defense+=2;
-		money -= Math.pow(10,upgrades[3]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[3]));
 		upgrades[3]++;
-		shipDefUpgrade.text = "Cost: "+Math.pow(10,upgrades[3])
+		ShipDefButt.text = "Cost: "+Math.pow(10,upgrades[3])
 	}
 }
 
 function bulletUpgrade(){
 	if(money >= Math.pow(10,upgrades[4])){
 		mainShip.ShotsToFire+=1;
-		money -= Math.pow(10,upgrades[4]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[4]));
 		upgrades[4]++;
 		BulletButt.text = "Cost: "+Math.pow(10,upgrades[4])
 	}
@@ -360,7 +372,7 @@ function bulletUpgrade(){
 function moneyUpgrade(){
 	if(money >= Math.pow(10,upgrades[5])){
 		moneyMulti*=1.5;
-		money -= Math.pow(10,upgrades[5]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[5]));
 		upgrades[5]++;
 		MoneyButt.text = "Cost: "+Math.pow(10,upgrades[5])
 	}
@@ -369,16 +381,16 @@ function moneyUpgrade(){
 function mouseDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[6])){
 		mouseDam+=2;
-		money -= Math.pow(10,upgrades[6]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[6]));
 		upgrades[6]++;
-		MouseButtonDam.text = "Cost: "+Math.pow(10,upgrades[6])
+		MouseButtonDam.text = "Upgrade Cost: "+Math.pow(10,upgrades[6])
 	}
 }
 
 function mouseAOEUpgrade(){
 	if(money >= Math.pow(10,upgrades[7])){
 		mouseAOE+=2;
-		money -= Math.pow(10,upgrades[7]);
+		increaseScoreBy(-1*Math.pow(10,upgrades[7]));
 		upgrades[7]++;
 		MouseButtonAOE.text = "Upgrade Cost: "+Math.pow(10,upgrades[7]);
 
@@ -436,18 +448,19 @@ function createLabelsAndButtons(){
         strokeThickness: 4
     });
     
-    scoreLabel = new PIXI.Text();
-    scoreLabel.style = textStyle;
-    scoreLabel.x = 5;
-    scoreLabel.y = 5;
-    gameScene.addChild(scoreLabel);
+    moneyLabel = new PIXI.Text();
+    moneyLabel.style = textStyle;
+    moneyLabel.x = 5;
+    moneyLabel.y = 5;
+    gameScene.addChild(moneyLabel);
+	shopScene.addChild(moneyLabel);
     increaseScoreBy(0);
 
 }
 
 function increaseScoreBy(value){
-    score+= value;
-    scoreLabel.text = `Score ${score}`;
+    money+= value;
+    moneyLabel.text = `Money: ${money}`;
 }
 
 function decreaseLifeBy(value){
@@ -460,7 +473,7 @@ function startGame(){
     startScene.visible = false;
     gameScene.visible = true;
     levelNum = 1;
-    score = 0;
+    money = 0;
     life = 100;
     increaseScoreBy(0);
     decreaseLifeBy(0);
@@ -631,15 +644,16 @@ function gameLoop(){
             console.log(undefined);
         else{
             console.log(aliens.length);
-        levelNum ++;
-		endWave();
+			levelNum ++;
+			endWave();
+        
 		}
     }
 }
 
 function endWave(){
 	gameScene.visible = false;
-	transitionScene.visible = true;
+	shopScene.visible = true;
 }
 
 function loadStore(){
@@ -650,4 +664,5 @@ function loadStore(){
 function closeStore(){
 	shopScene.visible = false;
 	gameScene.visible = true;
+	startWave();
 }
