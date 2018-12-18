@@ -192,7 +192,8 @@ function startWave(){
     }
     for(let i = 0; i < loadWave.buff; i++)
     {
-        aliens.push(new BuffEnemy());
+        // NOTE: BuffEnemy not currently used
+        // aliens.push(new BuffEnemy());
     }
     for(let i = 0; i < loadWave.nerf; i++)
     {
@@ -243,7 +244,7 @@ function clickEvent(e){
         shootSound.play();
     }
 	for(let i = 0; i<aliens.length;i++){
-		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 2000){
+		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 4000){
 			aliens[i].takeDamage(100);
 	    }
 	}
@@ -287,7 +288,7 @@ function gameLoop(){
     for(let alien of aliens){
         alien.move(dt);
     }
-	mainShip.Fire(aliens);
+	mainShip.Fire(aliens,dt);
     
     // #5 - Make enemies attack
     for(let alien of aliens)

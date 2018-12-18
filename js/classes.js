@@ -8,15 +8,24 @@ class Ship extends PIXI.Sprite{
 		this.targetType = "close";
 		this.health = 100;
 		this.maxHealth = 100;
-		this.FireTime = 2;
-		this.currentTime = 0;
+		this.fireTime = 2;
+        this.shotCooldown = 1.0;
+        this.timeMultiplier = 1.0;
     }
 	
-	Fire(enemyArray){
+	Fire(enemyArray, dt=0){
         
         // Only fire bullets if the game is not paused
         if(paused)
             return;
+        
+        // Every second, the nerf effect multiplier will fall by 5%, to a minimum of 100%
+        if(this.timeMultiplier <= 1.0)
+            this.timeMultiplier = 1.0;
+        else
+            this.timeMultiplier -= dt * 0.05;
+        this.shotCooldown += dt;
+        
         
 		let target;
 		if(this.targetType == "close"){
@@ -37,21 +46,29 @@ class Ship extends PIXI.Sprite{
 		else{
 			this.rotation = Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
 		}
-		this.currentTime += 1/60;
 		
-		if(this.currentTime>this.FireTime){
-			this.currentTime = 0;
+		if(this.shotCooldown>this.fireTime * this.timeMultiplier){
+			this.shotCooldown = 0;
 			let b = new Bullet(0xFF0000,this.x,this.y);
 			bullets.push(b);
 			gameScene.addChild(b);
 		}
 	}
 	
-    takeDamage(dmgAmount) {
+    takeDamage(dmgAmount, statusEffect="none") {
         this.health -= dmgAmount;
         if(this.health <= 0)
         {
             endGame();
+        }
+        switch(statusEffect)
+        {
+            case "none":
+                break;
+            case "nerf":
+                this.timeMultiplier = 2; // Increase the nerf effect timer by 100% (at base speed, reduce fire rate by 50%)
+            default:
+                break;
         }
     }
 }
@@ -162,8 +179,6 @@ class Enemy extends PIXI.Sprite{
 class MeleeEnemy extends Enemy{
 	constructor(){
 		super("melee");
-        this.cooldown = 1.0;
-        this.currentCooldown = 0.0;
 	}
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
@@ -177,42 +192,85 @@ class MeleeEnemy extends Enemy{
 class RangeEnemy extends Enemy{
 	constructor(){
 		super("range", 10, 200);
+        this.cooldown = 1.0;
+        this.currentCooldown = 0.0;
+        this.bullets = [];
 	}
 	attack(dt){
-		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 10000){
-			this.speed = 0;
+		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 75000){
+			this.speed /= 1.05;
             // Shoot a shot every (this.cooldown) seconds 
             this.currentCooldown -= dt;
             if(this.currentCooldown <= 0)
             {
                 this.currentCooldown = this.cooldown;
-                
+                this.bullets += new BulletEnemy(this.x, this.y);
             }
 	    }
 	}
 }
 
-class BulletEnemy extends Enemy{
-    constructor(){
-        super("bulletE", 1, 100);
-        
+class EnemyBullet extends PIXI.Graphics{
+    constructor(x,y,dir,rotation,color=0xFF0000){
+        super();
+        this.beginFill(color);
+        this.drawRect(-2,-3,4,6);
+        this.endFill();
+        this.active = false;
+        this.x = x;
+        this.y = y;
+        this.speed = 200;
+		this.rotation = rotation;
+		this.fwd = dir;
+        this.isAlive = true;
+        Object.seal(this);
+    }
+    move(dt=1/60){
+        this.x += this.fwd.x * this.speed * dt;
+        this.y += this.fwd.y * this.speed * dt;
+        if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 2000){
+            this.isAlive = false;
+            mainShip.takeDamage(1);
+            console.log(mainShip.health);
+        }
     }
 }
 
-class BuffEnemy extends Enemy{
+class BulletEnemy extends Enemy{
+    constructor(x, y, fwd){
+        super("bulletE", 1, 100);
+        this.scale.set(0.1);
+        this.fwd = fwd;
+    }
+    attack(dt)
+    {
+        if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 3000){
+            this.isAlive = false;
+            mainShip.takeDamage(2);
+            console.log(mainShip.health);
+        }
+    }
+}
+
+// NOTE: BuffEnemy not used
+/* class BuffEnemy extends Enemy{
 	constructor(){
 		super("buff");
 	}
 	attack(dt){
 		
 	}
-}
+} */
 
 class NerfEnemy extends Enemy{
 	constructor(){
 		super("nerf");
 	}
 	attack(dt){
-		
+        if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
+            this.isAlive = false;
+            mainShip.takeDamage(2, "nerf");
+            console.log(mainShip.health);
+        }
 	}
 }
