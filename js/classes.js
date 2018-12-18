@@ -8,8 +8,12 @@ class Ship extends PIXI.Sprite{
 		this.targetType = "close";
 		this.health = 100;
 		this.maxHealth = 100;
-		this.FireTime = 1;
+		this.rotationDivider = 256;
+		this.ShotsPerSec = 1;
+		this.ShotsToFire = 1;
 		this.currentTime = 0;
+		this.bulletDamage = 1;
+		this.defense = 1000;
     }
 	
 	Fire(enemyArray){
@@ -18,36 +22,59 @@ class Ship extends PIXI.Sprite{
         if(paused)
             return;
         
-		let target;
-		if(this.targetType == "close"){
+		//let target;
+		//if(this.targetType == "close"){
 			//Find closest 
-			target = enemyArray[0];
-		}
+		//	target = enemyArray[0];
+		//}
         
         // Make sure the enemy is within range; if not, don't shoot
-		if(Math.pow(this.x - target.x, 2) + Math.pow(this.y - target.y, 2) > 422500)
-        {
-            return;
-        }
+		//if(gameScene.visible == true && Math.pow(this.x - target.x, 2) + Math.pow(this.y - target.y, 2) > 422500)
+        //{
+        //    return;
+        //}
         
         // Set ship rotation to face the enemy
-        if(target.x < this.x){
-			this.rotation = 3*Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
-		}
-		else{
-			this.rotation = Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
-		}
+        //if(gameScene.visible == true && target.x < this.x){
+		//	this.rotation = 3*Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
+		//}
+		//else if(gameScene.visible == true){
+		//	this.rotation = Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
+		//}
+		this.rotation = this.rotation + Math.PI/this.rotationDivider;
 		this.currentTime += 1/60;
 		
-		if(this.currentTime>this.FireTime){
-			this.currentTime = 0;
-			let b = new Bullet(0xFF0000,this.x,this.y);
-			bullets.push(b);
-			gameScene.addChild(b);
+		if(this.currentTime>(1/this.ShotsPerSec)){
+			if(this.ShotsToFire % 2 == 0){
+				let startRotation = this.ShotsToFire/2 - 0.5;
+                startRotation = -Math.PI/32*startRotation + mainShip.rotation;
+				for(let i = 0; i<this.ShotsToFire;i++){
+					this.currentTime = 0;
+					let b = new Bullet(0xFF0000,this.x,this.y,startRotation, this.bulletDamage);
+					bullets.push(b);
+					gameScene.addChild(b);
+					startRotation+= Math.PI/32;
+				}
+			}
+			else{
+				let startRotation = (this.ShotsToFire - 1)/2;
+				startRotation = -Math.PI/32*startRotation + mainShip.rotation;
+				for(let i = 0; i<this.ShotsToFire;i++){
+					this.currentTime = 0;
+					let b = new Bullet(0xFF0000,this.x,this.y,startRotation, this.bulletDamage);
+					bullets.push(b);
+					gameScene.addChild(b);
+					startRotation+= Math.PI/32;
+				}
+			}
 		}
 	}
 	
     takeDamage(dmgAmount) {
+		dmgAmount -= this.defense;
+		if(dmgAmount <= 0){
+			return;
+		}
         this.health -= dmgAmount;
         if(this.health <= 0)
         {
@@ -58,7 +85,7 @@ class Ship extends PIXI.Sprite{
 
 
 class Bullet extends PIXI.Graphics{
-    constructor(color=0xFF0000, x=0, y=0){
+    constructor(color=0xFF0000, x=0, y=0, rotation = mainShip.rotation, damage = 1){
         super();
         this.beginFill(color);
         this.drawRect(-2,-3,4,6);
@@ -67,7 +94,8 @@ class Bullet extends PIXI.Graphics{
         this.x = x;
         this.y = y;
         this.speed = 400;
-		this.rotation = mainShip.rotation;
+		this.rotation = rotation;
+		this.damage = damage;
 		this.fwd = {x:Math.cos(this.rotation-Math.PI/2), y:Math.sin(this.rotation-Math.PI/2)};
         this.isAlive = true;
         Object.seal(this);

@@ -22,13 +22,15 @@ let stage;
 let startScene;
 let gameScene,ship,scoreLabel,lifeLabel,shootSound,hitSound,fireballSound;
 let transitionLabel;
-let shopScreen;
+let transitionScene;
+let shopScene;
 let mainShip;
 let bullets = [];
 let aliens = [];
 let upgrades = [];
 let explosionTextures;
 let score = 0;
+let money = 0;
 let life = 100;
 let waveArray = [];
 let levelNum = 1;
@@ -44,6 +46,10 @@ function setup() {
     SetUpWaves(data)
 	}, 'text');
 	
+	$.get('shop.txt', function(data) {
+    SetUpShop(data)
+	}, 'text');
+	
     stage = app.stage;
     // #1 - Create the `start` scene
     startScene = new PIXI.Container();
@@ -53,9 +59,13 @@ function setup() {
     gameScene.visible = false;
     stage.addChild(gameScene);
     // #3 - Create the main `game` scene and make it invisible
-    shopScreen = new PIXI.Container();
-    shopScreen.visible = false;
-    stage.addChild(shopScreen);
+    shopScene = new PIXI.Container();
+    shopScene.visible = false;
+    stage.addChild(shopScene);
+	
+	transitionScene = new PIXI.Container();
+    transitionScene.visible = false;
+    stage.addChild(transitionScene);
     // #4 - Create labels for all 3 scenes
     createLabelsAndButtons();
     // #5 - Create ship
@@ -99,6 +109,20 @@ function SetUpWaves(data){
     console.log(waveArray);
 }
 
+function SetUpShop(data){
+	 let shopString = [];
+	 shopString = data.split("\n");
+     // Starts at i = 1 to account for the first line being documentation
+	 for(let i = 1; i<wavesString.length;i++){
+		  let shopString = wavesString[i].split(",");
+		  waveArray[i] = new Wave(parseInt(waveString[0].trim()),parseInt(waveString[1].trim()),parseInt(waveString[2].trim()),parseInt(waveString[3].trim()));
+	 }
+    // Remove empty first element
+    waveArray.shift();
+    console.log(waveArray);
+}
+
+
 function createLabelsAndButtons(){
     let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
@@ -129,7 +153,7 @@ function createLabelsAndButtons(){
     startButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     startScene.addChild(startButton);
 	
-	let transitionLabel = new PIXI.Text("WAVE COMPLETE!");
+	transitionLabel = new PIXI.Text("WAVE COMPLETE!");
     transitionLabel.style = new PIXI.TextStyle({
         fill: 0xFFFFFF,
         fontSize: 110,
@@ -139,7 +163,6 @@ function createLabelsAndButtons(){
     });
     transitionLabel.x = 35;
     transitionLabel.y = 350;
-    startScene.addChild(transitionLabel);
 	
     
     
@@ -314,8 +337,7 @@ function gameLoop(){
         for(let b of bullets){
             if(rectsIntersect(c,b)){
                 fireballSound.play();
-                gameScene.removeChild(c);
-                c.isAlive = false;
+				c.takeDamage(b.damage);
                 gameScene.removeChild(b);
                 b.isAlive = false;
                 increaseScoreBy(1);
@@ -345,10 +367,11 @@ function gameLoop(){
     else if (aliens === undefined || aliens.length == 0){
         if(aliens === undefined)
             console.log(undefined);
-        else
+        else{
             console.log(aliens.length);
         levelNum ++;
-        startWave();
+		endWave();
+		}
     }
 }
 
@@ -371,4 +394,19 @@ function shuffle(array) {
     }
 
     return array;
+}
+
+function endWave(){
+	gameScene.visible = false;
+	transitionScene.visible = true;
+}
+
+function loadStore(){
+	transitionScene.visible = false;
+	shopScene.visible = true;
+}
+
+function closeStore(){
+	shopScene.visible = false;
+	gameScene.visible = true;
 }
