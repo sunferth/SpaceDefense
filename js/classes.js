@@ -107,12 +107,13 @@ class Bullet extends PIXI.Graphics{
 }
 
 class Upgrade extends PIXI.Graphics{
-    constructor(color=0xFF0000,texture="null", tier=0,active=false,){
+    constructor(color=0xFF0000, type = 0, tier=0, visible=false,purchased = false){
         super();
 		this.outline = color;
 		this.image = texture;
 		this.tier = tier;
-		this.active = false;
+		this.visible = visible;
+		this.purchased = purchased;
         
     }
 }
