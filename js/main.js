@@ -479,7 +479,63 @@ function increaseScoreBy(value){
     moneyLabel.text = `Money: ${money}`;
 }
 
-
+function loadGame(){
+	let level = localStorage.getItem("sru4607WaveNumber");
+	console.log(level);
+	let prevHealth = localStorage.getItem("sru4607HealthNumber");
+	console.log(prevHealth);
+	let prevMoney = localStorage.getItem("sru4607MoneyNumber");
+	console.log(prevMoney);
+	let prevUpgrades = localStorage.getItem("sru4607Upgrades");
+	console.log(prevUpgrades);
+	if(levelNum != null && prevHealth != null && prevMoney != null && prevUpgrades != null){
+		mainShip.health = prevHealth;
+		money = 1000000000000000000000;
+		for(let i = 0; i<prevUpgrades.length;i++){
+			for(let j = 0; j<=prevUpgrades[i];j++){
+				switch(i){
+					case 0:{
+						spinUpgrade();
+						break;
+					}
+					case 1:{
+						fireUpgrade();
+						break;
+					}
+					case 2:{
+						shipDamUpgrade();
+						break;
+					}
+					case 3:{
+						shipDefUpgrade();
+						break;
+					}
+					case 4:{
+						bulletUpgrade();
+						break;
+					}
+					case 5:{
+						moneyUpgrade();
+						break;
+					}
+					case 6:{
+						mouseDamUpgrade();
+						break;
+					}
+					case 7:{
+						mouseAOEUpgrade();
+						break;
+					}
+						
+				}
+			}
+		}
+		money = parseInt(prevMoney);
+		moneyLabel.text = "Money: "+money;
+		levelNum = parseInt(level);
+	}
+	
+}
 function startGame(){
     startScene.visible = false;
     gameScene.visible = true;
@@ -488,13 +544,16 @@ function startGame(){
     life = 100;
     increaseScoreBy(0);
     mainShip.takeDamage(0);
+	loadGame();
     startWave();
 }
 
 // Spawn in all enemies for the current wave
 function startWave(){
 	localStorage.setItem("sru4607WaveNumber",levelNum);
-	localStorage.setItem("sru4607MoneyCurrent",money);
+	localStorage.setItem("sru4607MoneyNumber",money);
+	localStorage.setItem("sru4607HealthNumber",mainShip.health);
+	localStorage.setItem("sru4607Upgrades",upgrades);
 	gameScene.addChild(moneyLabel);
     while(aliens.length > 0)
     {
