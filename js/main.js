@@ -21,6 +21,7 @@ let stage;
 // game variables
 let startScene;
 let gameScene,ship,moneyLabel,lifeLabel,shootSound,upgradeSound,fireballSound;
+let backgroundMusic;
 let transitionLabel;
 let transitionScene;
 let MouseButtonAOE;
@@ -53,6 +54,7 @@ function setup() {
     $.get('waves.txt', function(data) {
     SetUpWaves(data)
 	}, 'text');
+	
 	
     stage = app.stage;
 	
@@ -107,6 +109,12 @@ function setup() {
     fireballSound = new Howl({
         src: ['sounds/hit.mp3']
     });
+     	
+	backgroundMusic = new Howl({
+        src: ['sounds/space.mp3'],
+		loop: true,
+		autoplay:true
+    });
     }
     // #7 - Load sprite sheet
     explosionTextures = loadSpriteSheet("images/explosions.png");
@@ -139,6 +147,11 @@ function SetUpShop(){
         fontFamily: "Impact"
     });
 	
+	let resetStyle = new PIXI.TextStyle({
+        fill: 0xFF0000,
+        fontSize: 18,
+        fontFamily: "Impact"
+    });
 	upgrades = [0,0,0,0,0,0,0,0];
 	//Draw Title
 	let shopTitle = new PIXI.Text("SHOP");
@@ -331,6 +344,18 @@ function SetUpShop(){
     BackToGameButt.on('pointerover',e=> e.target.alpha = 0.7);
     BackToGameButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(BackToGameButt);
+	
+	//Draw Back to Game Button
+	let resetButton = new PIXI.Text("Reset");
+    resetButton.style = resetStyle;
+    resetButton.x = 975;
+    resetButton.y = 600;
+    resetButton.interactive = true;
+    resetButton.buttonMode = true;
+    resetButton.on("pointerup",Reset);
+    resetButton.on('pointerover',e=> e.target.alpha = 0.7);
+    resetButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(resetButton);
 }
 
 function spinUpgrade(){
@@ -486,6 +511,7 @@ function increaseScoreBy(value){
 }
 
 function loadGame(){
+	
 	let level = localStorage.getItem("sru4607WaveNumber");
 	console.log(level);
 	let prevHealth = localStorage.getItem("sru4607HealthNumber");
@@ -495,10 +521,11 @@ function loadGame(){
 	let prevUpgrades = localStorage.getItem("sru4607Upgrades");
 	console.log(prevUpgrades);
 	if(levelNum != null && prevHealth != null && prevMoney != null && prevUpgrades != null){
+		Reset();
 		mainShip.health = prevHealth;
 		money = 1000000000000000000000;
 		for(let i = 0; i<prevUpgrades.length;i++){
-			for(let j = 0; j<=prevUpgrades[i];j++){
+			for(let j = 0; j<prevUpgrades[i];j++){
 				switch(i){
 					case 0:{
 						spinUpgrade();
@@ -541,6 +568,28 @@ function loadGame(){
 		levelNum = parseInt(level);
 	}
 	
+}
+
+function Reset(){
+	levelNum = 1;
+	money = 0;
+	upgrades = [0,0,0,0,0,0,0,0];
+	mainShip.health = 100;
+	mainShip.rotationDivider = 256;
+	mainShip.bulletDamage = 1;
+	mainShip.defense = 0;
+	mainShip.ShotsToFire = 1;
+	mainShip.ShotsPerSec = 1;
+	moneyMulti = 1;
+	mouseAOE = 0;
+	mouseDam = 5;
+	localStorage.setItem("sru4607WaveNumber",1);
+	localStorage.setItem("sru4607MoneyNumber",0);
+	localStorage.setItem("sru4607HealthNumber",100);
+	localStorage.setItem("sru4607Upgrades",[0,0,0,0,0,0,0,0]);
+	if(shopScene.visible == true){
+		window.location.reload(true);
+	}
 }
 function startGame(){
     startScene.visible = false;
@@ -627,6 +676,9 @@ function startWave(){
 
 function endGame(state = "lose"){
     paused = true;
+	Reset();
+	window.location.reload(true);
+	
 }
 
 // Function called every time the user clicks within the web browser
