@@ -13,7 +13,6 @@ class Ship extends PIXI.Sprite{
 		this.currentTime = 0;
 		this.bulletDamage = 1;
 		this.defense = 0;
-		this.fireTime = 2;
         this.shotCooldown = 1.0;
         this.timeMultiplier = 1.0;
         this.enemyBullets = [];
