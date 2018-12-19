@@ -12,7 +12,7 @@ const sceneHeight = app.view.height;
 // pre-load the images
 PIXI.loader.
 add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png","images/AlienNerf.png"]).
-on("progress",e=>{console.log(`progress=${e.progress}`)}).
+on("progress",e=>{/*console.log(`progress=${e.progress}`)*/}).
 load(setup);
 
 // aliases
@@ -130,7 +130,6 @@ function SetUpWaves(data){
 	 }
     // Remove empty first element
     waveArray.shift();
-    console.log(waveArray);
 }
 
 function SetUpShop(){
@@ -676,8 +675,7 @@ function gameLoop(){
 		
 		// If there are no aliens left, end the wave and go to the shop
         else if (aliens === undefined || aliens.length == 0){
-			if(aliens === undefined)
-				console.log(undefined);
+			if(aliens === undefined) {}
 			else{
 				levelNum ++;
 				endWave();

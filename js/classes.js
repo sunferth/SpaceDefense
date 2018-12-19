@@ -220,7 +220,6 @@ class MeleeEnemy extends Enemy{
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
 			this.isAlive = false;
             mainShip.takeDamage(20+levelNum);
-            console.log(mainShip.health);
 	    }
 	}
 }
@@ -267,7 +266,6 @@ class EnemyBullet extends PIXI.Graphics{
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 2000){
             this.isAlive = false;
             mainShip.takeDamage(10 + levelNum);
-            console.log(mainShip.health);
         }
     }
 }
@@ -290,7 +288,6 @@ class NerfEnemy extends Enemy{
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
             this.isAlive = false;
             mainShip.takeDamage(20+levelNum, "nerf");
-            console.log(mainShip.health);
         }
 	}
 }
