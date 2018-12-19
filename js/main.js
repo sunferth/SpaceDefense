@@ -11,7 +11,7 @@ const sceneHeight = app.view.height;
 
 // pre-load the images
 PIXI.loader.
-add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png"]).
+add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png"]).
 on("progress",e=>{console.log(`progress=${e.progress}`)}).
 load(setup);
 
@@ -46,43 +46,53 @@ let life = 100;
 let waveArray = [];
 let levelNum = 1;
 let paused = true;
-let finiteState = "mainMenu";
 let distMod = 400; // Used for determining how far apart enemies will spawn (25 + Math.random(0, distMod));
 
 function setup() {
-	
-    finiteState = "mainMenu";
-    
+	mainShip = new Ship();
     $.get('waves.txt', function(data) {
     SetUpWaves(data)
 	}, 'text');
 	
-
-
-
-	
     stage = app.stage;
+	
     // #1 - Create the `start` scene
     startScene = new PIXI.Container();
-	startScene.visible = false;
+	startScene.visible = true;
     stage.addChild(startScene);
+	
     // #2 - Create the main `game` scene and make it invisible
     gameScene = new PIXI.Container();
     gameScene.visible = false;
     stage.addChild(gameScene);
+	
     // #3 - Create the main `game` scene and make it invisible
     shopScene = new PIXI.Container();
 	SetUpShop();
-    shopScene.visible = true;
+    shopScene.visible = false;
     stage.addChild(shopScene);
 	
 	transitionScene = new PIXI.Container();
     transitionScene.visible = false;
+	let transitionButton = new PIXI.Text("Protect your ship!");
+    transitionButton.style = new PIXI.TextStyle({
+        fill: 0xFF0000,
+        fontSize: 36,
+        fontFamily: "Impact"});
+    transitionButton.x = 300;
+    transitionButton.y = sceneHeight - 100;
+    transitionButton.interactive = true;
+    transitionButton.buttonMode = true;
+    transitionButton.on("pointerup",startGame);
+    transitionButton.on('pointerover',e=> e.target.alpha = 0.7);
+    transitionButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    transitionScene.addChild(transitionButton);
     stage.addChild(transitionScene);
+	
     // #4 - Create labels for all 3 scenes
     createLabelsAndButtons();
     // #5 - Create ship
-    mainShip = new Ship();
+    
     gameScene.addChild(mainShip);
     // #6 - Load Sounds
     {
@@ -126,7 +136,7 @@ function SetUpShop(){
 	let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
         fontSize: 36,
-        fontFamily: "Futura"
+        fontFamily: "Impact"
     });
 	
 	upgrades = [0,0,0,0,0,0,0,0];
@@ -135,7 +145,7 @@ function SetUpShop(){
     shopTitle.style = new PIXI.TextStyle({
         fill: 0xFFFFFF,
         fontSize: 110,
-        fontFamily: "Futura",
+        fontFamily: "Impact",
         stroke:0xFF0000,
         stokeThickness: 6
     });
@@ -149,7 +159,7 @@ function SetUpShop(){
     shipLabel.style = new PIXI.TextStyle({
         fill: 0xFFFFFF,
         fontSize: 70,
-        fontFamily: "Futura",
+        fontFamily: "Impact",
         stroke:0xFF0000,
         stokeThickness: 6
     });
@@ -265,7 +275,7 @@ function SetUpShop(){
     mouseLabel.style = new PIXI.TextStyle({
         fill: 0xFFFFFF,
         fontSize: 70,
-        fontFamily: "Futura",
+        fontFamily: "Impact",
         stroke:0xFF0000,
         stokeThickness: 6
     });
@@ -401,14 +411,14 @@ function createLabelsAndButtons(){
     let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
         fontSize: 48,
-        fontFamily: "Futura"
+        fontFamily: "Impact"
     });
     
     let startLabel1 = new PIXI.Text("Space Defense!");
     startLabel1.style = new PIXI.TextStyle({
         fill: 0xFF0000,
         fontSize: 96,
-        fontFamily: "Futura",
+        fontFamily: "Impact",
         stroke:0xFF0000,
         stokeThickness: 6
     });
@@ -452,9 +462,15 @@ function createLabelsAndButtons(){
     moneyLabel.style = textStyle;
     moneyLabel.x = 5;
     moneyLabel.y = 5;
-    gameScene.addChild(moneyLabel);
 	shopScene.addChild(moneyLabel);
     increaseScoreBy(0);
+	
+	lifeLabel = new PIXI.Text();
+    lifeLabel.style = textStyle;
+    lifeLabel.x = 905;
+    lifeLabel.y = 5;
+    gameScene.addChild(lifeLabel);
+    mainShip.takeDamage(0);
 
 }
 
@@ -463,11 +479,6 @@ function increaseScoreBy(value){
     moneyLabel.text = `Money: ${money}`;
 }
 
-function decreaseLifeBy(value){
-    life -= value;
-    life = parseInt(life);
-    //lifeLabel.text = `Life ${life}%`;
-}
 
 function startGame(){
     startScene.visible = false;
@@ -476,7 +487,7 @@ function startGame(){
     money = 0;
     life = 100;
     increaseScoreBy(0);
-    decreaseLifeBy(0);
+    mainShip.takeDamage(0);
     startWave();
 }
 
@@ -484,12 +495,16 @@ function startGame(){
 function startWave(){
 	localStorage.setItem("sru4607WaveNumber",levelNum);
 	localStorage.setItem("sru4607MoneyCurrent",money);
+	gameScene.addChild(moneyLabel);
     while(aliens.length > 0)
     {
         gameScene.removeChild(aliens.shift());
     }
 	aliens = [];
-    
+    for(let i = 0; i<bullets.length;i++){
+		gameScene.removeChild(bullets[i]);
+	}
+	bullets = [];
     if(waveArray.length < levelNum)
     {
         endGame();
@@ -542,11 +557,10 @@ function startWave(){
     }
     
 	paused = false;
-    finiteState = "waveActive";
+  
 }
 
 function endGame(state = "lose"){
-    finiteState = "endGame";
     paused = true;
 }
 
@@ -559,8 +573,8 @@ function clickEvent(e){
         shootSound.play();
     }
 	for(let i = 0; i<aliens.length;i++){
-		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 4000){
-			aliens[i].takeDamage(100);
+		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 6000+1000*upgrades[7]){
+			aliens[i].takeDamage(mouseDam);
 	    }
 	}
 }
@@ -596,67 +610,70 @@ function gameLoop(){
     let dt = 1/app.ticker.FPS;
     if (dt > 1/12) dt=1/12;
 
-	// #4 - Move bullets and enemies
-    for (let b of bullets){
-		b.move(dt);
-	}
-    for(let alien of aliens){
-        alien.move(dt);
-    }
-	mainShip.Fire(aliens,dt);
-    
-    // #5 - Make enemies attack
-    for(let alien of aliens)
-    {
-        alien.attack(dt);
-    }
-	
-	for(let c of aliens){
-        for(let b of bullets){
-            if(rectsIntersect(c,b)){
-                fireballSound.play();
-				c.takeDamage(b.damage);
-                gameScene.removeChild(b);
-                b.isAlive = false;
-                increaseScoreBy(1);
-            }
-            if(b.y < -10) b.isAlive = false;
-        }
-    }
-    
-	// #6 - Now do some clean up
-	bullets = bullets.filter(b=>b.isAlive);
-    for(let i = 0; i < aliens.length; i++)
-    {
-        if(aliens[i].isAlive == false)
-        {
-            gameScene.removeChild(aliens[i]);
-            aliens.splice(i,1);
-        }
-    }
-    //explosions = explosions.filter(e=>e.playing);
-    
-    // #8 - Load next level
-    // TODO: Add condition of "if there are no more waves and no aliens exist on the screen, end the game
-    if(false){
-        endGame("win");
-    }
-    // TODO: Change this to have a condition that meets clicking on a "Next Level" button
-    else if (aliens === undefined || aliens.length == 0){
-        if(aliens === undefined)
-            console.log(undefined);
-        else{
-            console.log(aliens.length);
-			levelNum ++;
-			endWave();
-        
+	if(gameScene.visible == true){
+		// #4 - Move bullets and enemies
+		for (let b of bullets){
+			b.move(dt);
 		}
-    }
+		for(let alien of aliens){
+			alien.move(dt);
+		}
+		mainShip.Fire(aliens,dt);
+
+		// #5 - Make enemies attack
+		for(let alien of aliens)
+		{
+			alien.attack(dt);
+		}
+
+		for(let c of aliens){
+			for(let b of bullets){
+				if(rectsIntersect(c,b)){
+					fireballSound.play();
+					c.takeDamage(b.damage);
+					gameScene.removeChild(b);
+					b.isAlive = false;
+					increaseScoreBy(1);
+				}
+				if(b.y < -10) b.isAlive = false;
+			}
+		}
+
+		// #6 - Now do some clean up
+		bullets = bullets.filter(b=>b.isAlive);
+		for(let i = 0; i < aliens.length; i++)
+		{
+			if(aliens[i].isAlive == false)
+			{
+				gameScene.removeChild(aliens[i]);
+				aliens.splice(i,1);
+			}
+		}
+		//explosions = explosions.filter(e=>e.playing);
+
+		// #8 - Load next level
+		// TODO: Add condition of "if there are no more waves and no aliens exist on the screen, end the game
+		if(false){
+			endGame("win");
+		}
+		// TODO: Change this to have a condition that meets clicking on a "Next Level" button
+		else if (aliens === undefined || aliens.length == 0){
+			if(aliens === undefined)
+				console.log(undefined);
+			else{
+				levelNum ++;
+				endWave();
+
+			}
+		}
+	}
 }
 
 function endWave(){
 	gameScene.visible = false;
 	shopScene.visible = true;
+	shopScene.addChild(moneyLabel);
+	moneyLabel.text = "Money: "+money;
 }
 
 function loadStore(){

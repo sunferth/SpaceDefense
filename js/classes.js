@@ -13,7 +13,7 @@ class Ship extends PIXI.Sprite{
 		this.ShotsToFire = 1;
 		this.currentTime = 0;
 		this.bulletDamage = 1;
-		this.defense = 1000;
+		this.defense = 0;
 		this.fireTime = 2;
         this.shotCooldown = 1.0;
         this.timeMultiplier = 1.0;
@@ -83,10 +83,13 @@ class Ship extends PIXI.Sprite{
 	
     takeDamage(dmgAmount, statusEffect="none") {
 		dmgAmount -= this.defense;
-		if(dmgAmount <= 0){
+		lifeLabel.text = "Health: "+this.health;
+		console.log("here");
+		if(dmgAmount < 0){
 			return;
 		}
         this.health -= dmgAmount;
+
         if(this.health <= 0)
         {
             endGame();
@@ -165,8 +168,8 @@ class Wave{
 }
 
 class Enemy extends PIXI.Sprite{
-	constructor(type = "melee", health = 10, speed = 200){
-        super(PIXI.loader.resources["images/Spaceship.png"].texture);
+	constructor(type = "melee", health = 10, speed = 200, texture){
+        super(texture);
         this.anchor.set(0.5,0.5);
         this.scale.set(0.3);
 		this.type = type;
@@ -199,6 +202,8 @@ class Enemy extends PIXI.Sprite{
 		this.health -= damage;
 		if(this.health <= 0){
 			this.isAlive = false;
+			money+=5*moneyMulti;
+			moneyLabel.text = "Money: "+money;
 		}
 	}
     
@@ -210,7 +215,7 @@ class Enemy extends PIXI.Sprite{
 
 class MeleeEnemy extends Enemy{
 	constructor(){
-		super("melee");
+		super("melee",10,200,PIXI.loader.resources["images/AlienMelee.png"].texture);
 	}
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
@@ -223,7 +228,7 @@ class MeleeEnemy extends Enemy{
 
 class RangeEnemy extends Enemy{
 	constructor(){
-		super("range", 10, 200);
+		super("range",10,200,PIXI.loader.resources["images/AlienRange.png"].texture);
         this.cooldown = 1.0;
         this.currentCooldown = 0.0;
         this.bullets = [];
