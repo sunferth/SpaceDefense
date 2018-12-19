@@ -49,6 +49,7 @@ let levelNum = 1;
 let paused = true;
 let distMod = 400; // Used for determining how far apart enemies will spawn (25 + Math.random(0, distMod));
 
+//Sets up all necessary variables 
 function setup() {
 	mainShip = new Ship();
     $.get('waves.txt', function(data) {
@@ -73,24 +74,7 @@ function setup() {
 	SetUpShop();
     shopScene.visible = false;
     stage.addChild(shopScene);
-	
-	transitionScene = new PIXI.Container();
-    transitionScene.visible = false;
-	let transitionButton = new PIXI.Text("Protect your ship!");
-    transitionButton.style = new PIXI.TextStyle({
-        fill: 0xFF0000,
-        fontSize: 36,
-        fontFamily: "Impact"});
-    transitionButton.x = 300;
-    transitionButton.y = sceneHeight - 100;
-    transitionButton.interactive = true;
-    transitionButton.buttonMode = true;
-    transitionButton.on("pointerup",startGame);
-    transitionButton.on('pointerover',e=> e.target.alpha = 0.7);
-    transitionButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    transitionScene.addChild(transitionButton);
-    stage.addChild(transitionScene);
-	
+
     // #4 - Create labels for all 3 scenes
     createLabelsAndButtons();
     // #5 - Create ship
@@ -109,7 +93,7 @@ function setup() {
     fireballSound = new Howl({
         src: ['sounds/hit.mp3']
     });
-     	
+    //backgroundMusic
 	backgroundMusic = new Howl({
         src: ['sounds/space.mp3'],
 		loop: true,
@@ -125,7 +109,6 @@ function setup() {
     // Now our `startScene` is visible
     // Clicking the button calls startGame()
 }
-
 // Uses waves.txt and stores all wave-related data in waveArray[...]
 function SetUpWaves(data){
 	 let wavesString = [];
@@ -139,7 +122,7 @@ function SetUpWaves(data){
     waveArray.shift();
     console.log(waveArray);
 }
-
+//Sets up the entire shop scene
 function SetUpShop(){
 	let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
@@ -152,6 +135,7 @@ function SetUpShop(){
         fontSize: 18,
         fontFamily: "Impact"
     });
+	//sets up array
 	upgrades = [0,0,0,0,0,0,0,0];
 	//Draw Title
 	let shopTitle = new PIXI.Text("SHOP");
@@ -165,8 +149,7 @@ function SetUpShop(){
     shopTitle.x = 320;
     shopTitle.y = 10;
     shopScene.addChild(shopTitle);
-	//Draw Money Label
-	
+
 	//Draw ShipSubCat
 	let shipLabel = new PIXI.Text("Ship Upgrades");
     shipLabel.style = new PIXI.TextStyle({
@@ -357,7 +340,7 @@ function SetUpShop(){
     resetButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(resetButton);
 }
-
+//Upgrades spin speeds
 function spinUpgrade(){
 	if(money >= Math.pow(10,upgrades[0])){
 		mainShip.rotationDivider/=2;
@@ -367,7 +350,7 @@ function spinUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//Upgrades fire speed
 function fireUpgrade(){
 	if(money >= Math.pow(10,upgrades[1])){
 		mainShip.ShotsPerSec+=1;
@@ -377,7 +360,7 @@ function fireUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//upgrades ship damage
 function shipDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[2])){
 		mainShip.bulletDamage+=2;
@@ -387,7 +370,7 @@ function shipDamUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//upgrades ship def
 function shipDefUpgrade(){
 	if(money >= Math.pow(10,upgrades[3])){
 		mainShip.defense+=2;
@@ -397,7 +380,7 @@ function shipDefUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//upgrades bullet amount
 function bulletUpgrade(){
 	if(money >= Math.pow(10,upgrades[4])){
 		mainShip.ShotsToFire+=1;
@@ -407,7 +390,7 @@ function bulletUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//upgrades money multi
 function moneyUpgrade(){
 	if(money >= Math.pow(10,upgrades[5])){
 		moneyMulti*=1.5;
@@ -417,7 +400,7 @@ function moneyUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//Upgrades the mouse Damge
 function mouseDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[6])){
 		mouseDam+=2;
@@ -427,7 +410,7 @@ function mouseDamUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//upgrades mouse range
 function mouseAOEUpgrade(){
 	if(money >= Math.pow(10,upgrades[7])){
 		mouseAOE+=2;
@@ -437,7 +420,7 @@ function mouseAOEUpgrade(){
         upgradeSound.play();
 	}
 }
-
+//creates and implements all labels and buttons 
 function createLabelsAndButtons(){
     let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
@@ -504,12 +487,12 @@ function createLabelsAndButtons(){
     mainShip.takeDamage(0);
 
 }
-
+//Edits Money and updates labels
 function increaseScoreBy(value){
     money+= value;
     moneyLabel.text = `Money: ${money}`;
 }
-
+//loads game from local storage
 function loadGame(){
 	
 	let level = localStorage.getItem("sru4607WaveNumber");
@@ -569,8 +552,9 @@ function loadGame(){
 	}
 	
 }
-
+//Resets the fields controlling the game set up
 function Reset(){
+	//resets the fields
 	levelNum = 1;
 	money = 0;
 	upgrades = [0,0,0,0,0,0,0,0];
@@ -583,14 +567,17 @@ function Reset(){
 	moneyMulti = 1;
 	mouseAOE = 0;
 	mouseDam = 5;
+	//stores the reset fields
 	localStorage.setItem("sru4607WaveNumber",1);
 	localStorage.setItem("sru4607MoneyNumber",0);
 	localStorage.setItem("sru4607HealthNumber",100);
 	localStorage.setItem("sru4607Upgrades",[0,0,0,0,0,0,0,0]);
+	//refreshes the page if need be
 	if(shopScene.visible == true){
 		window.location.reload(true);
 	}
 }
+//sets the games starting parameters, and starts the first wave
 function startGame(){
     startScene.visible = false;
     gameScene.visible = true;
@@ -602,8 +589,7 @@ function startGame(){
 	loadGame();
     startWave();
 }
-
-// Spawn in all enemies for the current wave
+//Spawn in all enemies for the current wave
 function startWave(){
 	localStorage.setItem("sru4607WaveNumber",levelNum);
 	localStorage.setItem("sru4607MoneyNumber",money);
@@ -673,15 +659,14 @@ function startWave(){
 	paused = false;
   
 }
-
+//Ends games and reset it
 function endGame(state = "lose"){
     paused = true;
 	Reset();
 	window.location.reload(true);
 	
 }
-
-// Function called every time the user clicks within the web browser
+//Function called every time the user clicks within the web browser
 function clickEvent(e){
     // TODO: Replace with conditions for when a bullet should be fired
     if(gameScene.visible == true)
@@ -695,6 +680,7 @@ function clickEvent(e){
 	    }
 	}
 }
+//Loads sprite sheets
 function loadSpriteSheet(textureFile){
     let spriteSheet = PIXI.BaseTexture.fromImage(textureFile);
     let width = 64;
@@ -707,6 +693,7 @@ function loadSpriteSheet(textureFile){
     }
     return textures;
 }
+//creates explosions at coordinates
 function createExplosion(x,y,frameWidth,frameHeight){
     let w2 = frameWidth/2;
     let h2 = frameHeight/2;
@@ -720,6 +707,7 @@ function createExplosion(x,y,frameWidth,frameHeight){
     gameScene.addChild(expl);
     expl.play();
 }
+//runs the entire game loop
 function gameLoop(){
 	if (paused) return; // keep this commented out for now
 	
@@ -797,7 +785,7 @@ function gameLoop(){
 		}
 	}
 }
-
+//Runs the logic after each enemy is killed
 function endWave(){
     while(mainShip.enemyBullets.length > 0)
     {
@@ -809,12 +797,12 @@ function endWave(){
 	shopScene.addChild(moneyLabel);
 	moneyLabel.text = "Money: "+money;
 }
-
+//Switches to the store
 function loadStore(){
 	transitionScene.visible = false;
 	shopScene.visible = true;
 }
-
+//closes the store and returns to the game
 function closeStore(){
 	shopScene.visible = false;
 	gameScene.visible = true;
