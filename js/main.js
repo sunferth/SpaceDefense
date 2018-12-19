@@ -20,7 +20,12 @@ let stage;
 
 // game variables
 let startScene;
-let gameScene,ship,moneyLabel,lifeLabel,shootSound,upgradeSound,fireballSound;
+let gameScene;
+let ship;
+let moneyLabel;
+let lifeLabel;
+let shootSound;
+let upgradeSound;
 let backgroundMusic;
 let transitionLabel;
 let transitionScene;
@@ -105,10 +110,6 @@ function setup() {
 
     upgradeSound = new Howl({
         src: ['sounds/upgrade.wav']
-    });
-
-    fireballSound = new Howl({
-        src: ['sounds/hit.mp3']
     });
      	
 	backgroundMusic = new Howl({
@@ -574,7 +575,7 @@ function Reset(){
 	levelNum = 1;
 	money = 0;
 	upgrades = [0,0,0,0,0,0,0,0];
-	mainShip.health = 100;
+	mainShip.health = 1000;
 	mainShip.rotationDivider = 256;
 	mainShip.bulletDamage = 1;
 	mainShip.defense = 0;
@@ -585,7 +586,7 @@ function Reset(){
 	mouseDam = 5;
 	localStorage.setItem("sru4607WaveNumber",1);
 	localStorage.setItem("sru4607MoneyNumber",0);
-	localStorage.setItem("sru4607HealthNumber",100);
+	localStorage.setItem("sru4607HealthNumber",1000);
 	localStorage.setItem("sru4607Upgrades",[0,0,0,0,0,0,0,0]);
 	if(shopScene.visible == true){
 		window.location.reload(true);
@@ -687,7 +688,7 @@ function clickEvent(e){
     // TODO: Replace with conditions for when a bullet should be fired
     if(gameScene.visible == true)
     {
-        mainShip.Fire(aliens);
+        mainShip.fire(aliens);
         shootSound.play();
     }
 	for(let i = 0; i<aliens.length;i++){
@@ -736,7 +737,7 @@ function gameLoop(){
 		for(let alien of aliens){
 			alien.move(dt);
 		}
-		mainShip.Fire(aliens,dt);
+		mainShip.fire(aliens,dt);
 
 		// #5 - Make enemies attack
 		for(let alien of aliens)
@@ -782,10 +783,8 @@ function gameLoop(){
 		}
 		//explosions = explosions.filter(e=>e.playing);
 
-		// #8 - Load next level
-		
 		// If there are no aliens left, end the wave and go to the shop
-        else if (aliens === undefined || aliens.length == 0){
+        if (aliens === undefined || aliens.length == 0){
 			if(aliens === undefined) {}
 			else{
 				levelNum ++;

@@ -1,4 +1,6 @@
+// Class used for the main ship at the center of the screen
 class Ship extends PIXI.Sprite{
+    // Spawn a ship at the center of the screen
     constructor(x=sceneWidth/2,y=sceneHeight/2){
         super(PIXI.loader.resources["images/Spaceship.png"].texture);
         this.anchor.set(0.5,0.5);
@@ -8,8 +10,8 @@ class Ship extends PIXI.Sprite{
 		this.health = 1000;
 		this.maxHealth = 1000;
 		this.rotationDivider = 256;
-		this.ShotsPerSec = 1;
-		this.ShotsToFire = 1;
+		this.shotsPerSec = 1;
+		this.shotsToFire = 1;
 		this.currentTime = 0;
 		this.bulletDamage = 1;
 		this.defense = 0;
@@ -18,8 +20,8 @@ class Ship extends PIXI.Sprite{
         this.enemyBullets = [];
     }
 	
-	Fire(enemyArray, dt=0){
-        
+    // Fire bullets in the surrounding area based off delta time and upgrades
+	fire(enemyArray, dt=0){
         // Only fire bullets if the game is not paused
         if(paused)
             return;
@@ -31,34 +33,16 @@ class Ship extends PIXI.Sprite{
             this.timeMultiplier -= dt * 0.05;
         this.shotCooldown += dt;
         
-        
-		// let target;
-		// if(this.targetType == "close"){
-		//  Find closest 
-		//  target = enemyArray[0];
-		//}
-        
-        // Make sure the enemy is within range; if not, don't shoot
-		//if(gameScene.visible == true && Math.pow(this.x - target.x, 2) + Math.pow(this.y - target.y, 2) > 422500)
-        //{
-        //    return;
-        //}
-        
-        // Set ship rotation to face the enemy
-        //if(gameScene.visible == true && target.x < this.x){
-		//	this.rotation = 3*Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
-		//}
-		//else if(gameScene.visible == true){
-		//	this.rotation = Math.PI/2 + Math.atan((target.y -this.y)/(target.x-this.x));
-		//}
-		this.rotation = this.rotation + Math.PI/this.rotationDivider;
-		this.currentTime += 1/60;
+        // Constantly rotate at a fixed rate
+		this.rotation = this.rotation + Math.PI/this.rotationDivider/this.timeMultiplier;
+		this.currentTime += dt;
 		
-		if(this.currentTime>(1/this.ShotsPerSec)*this.timeMultiplier){
-			if(this.ShotsToFire % 2 == 0){
-				let startRotation = this.ShotsToFire/2 - 0.5;
+        // Shoot a shot if the ship hasn't shot within timeMultiplier/shotsPerSec seconds
+		if(this.currentTime>(1/this.shotsPerSec)*this.timeMultiplier){
+			if(this.shotsToFire % 2 == 0){
+				let startRotation = this.shotsToFire/2 - 0.5;
                 startRotation = -Math.PI/32*startRotation + mainShip.rotation;
-				for(let i = 0; i<this.ShotsToFire;i++){
+				for(let i = 0; i<this.shotsToFire;i++){
 					this.currentTime = 0;
 					let b = new Bullet(0xFF0000,this.x,this.y,startRotation, this.bulletDamage);
 					bullets.push(b);
@@ -67,9 +51,9 @@ class Ship extends PIXI.Sprite{
 				}
 			}
 			else{
-				let startRotation = (this.ShotsToFire - 1)/2;
+				let startRotation = (this.shotsToFire - 1)/2;
 				startRotation = -Math.PI/32*startRotation + mainShip.rotation;
-				for(let i = 0; i<this.ShotsToFire;i++){
+				for(let i = 0; i<this.shotsToFire;i++){
 					this.currentTime = 0;
 					let b = new Bullet(0xFF0000,this.x,this.y,startRotation, this.bulletDamage);
 					bullets.push(b);
@@ -80,32 +64,46 @@ class Ship extends PIXI.Sprite{
 		}
 	}
 	
+    // Take damage, optionally adding a status effect
     takeDamage(dmgAmount, statusEffect="none") {
-		dmgAmount /= (3+this.defense)/3;
+		// Reduce incoming damage by the defense value
+        dmgAmount /= (3+this.defense)/3;
+        
 		if(dmgAmount < 0){
 			return;
 		}
+        
+        // Update the displayed health
         this.health -= dmgAmount;
 		lifeLabel.text = "Health: "+this.health;
-
+        
+        // Play a sound if actual damage was taken
+        if(dmgAmount > 0)
+        {
+            shootSound.play();
+        }
+        
         if(this.health <= 0)
         {
             endGame();
         }
+        
+        // If the damage is tagged with a "nerf" effect, halve the effective turn/fire rate temporarily
         switch(statusEffect)
         {
             case "none":
                 break;
             case "nerf":
-                this.timeMultiplier = 2; // Increase the nerf effect timer by 100% (at base speed, reduce fire rate by 50%)
+                this.timeMultiplier = 2;
             default:
                 break;
         }
     }
 }
 
-
+// Bullets shot by the main ship at enemies
 class Bullet extends PIXI.Graphics{
+    // Construct a red rectangle and apply position/velocity properties
     constructor(color=0xFF0000, x=0, y=0, rotation = mainShip.rotation, damage = 10){
         super();
         this.beginFill(color);
@@ -121,24 +119,14 @@ class Bullet extends PIXI.Graphics{
         this.isAlive = true;
         Object.seal(this);
     }
+    // Move based on delta time
     move(dt=1/60){
         this.x += this.fwd.x * this.speed * dt;
         this.y += this.fwd.y * this.speed * dt;
     }
 }
 
-class Upgrade extends PIXI.Graphics{
-    constructor(color=0xFF0000, type = 0, tier=0, visible=false,purchased = false){
-        super();
-		this.outline = color;
-		this.image = texture;
-		this.tier = tier;
-		this.visible = visible;
-		this.purchased = purchased;
-        
-    }
-}
-
+// Helper class used to read lines of waves.txt and spawn in mobs
 class Wave{
     constructor(mel,ran,buf,ner){
 	   this.melee = mel;
@@ -165,7 +153,9 @@ class Wave{
     }
 }
 
+// Base enemy class with movement, rotation and positioning properties
 class Enemy extends PIXI.Sprite{
+    // Spawn in an enemy with health scaling relative to the levelNum
 	constructor(type = "melee", health = 100, speed = 250, texture){
         super(texture);
         this.anchor.set(0.5,0.5);
@@ -178,6 +168,7 @@ class Enemy extends PIXI.Sprite{
         this.fwd = {x:0, y:0};
     }
     
+    // Called by startWave(); sets the position of each ship on screen with all ships moving towards the center
     setPosition(x, y, shipX = sceneWidth/2, shipY = sceneHeight/2){
         this.x = x;
         this.y = y;
@@ -195,26 +186,29 @@ class Enemy extends PIXI.Sprite{
 		}
     }
 	
+    // Take damage either from being clicked or shot
 	takeDamage(damage){
 		this.health -= damage;
 		if(this.health <= 0){
 			this.isAlive = false;
-            fireballSound.play();
 			money+=5*moneyMulti;
 			moneyLabel.text = "Money: "+money;
 		}
 	}
     
+    // Move based off delta time
     move(dt=1/60){
         this.x += this.fwd.x * this.speed * dt;
         this.y += this.fwd.y * this.speed * dt;
     }
 }
 
+// An enemy that outputs a one-time use proximity attack if colliding, then dies
 class MeleeEnemy extends Enemy{
 	constructor(){
 		super("melee",Math.floor(10*Math.pow(1.1,levelNum)),250,PIXI.loader.resources["images/AlienMelee.png"].texture);
 	}
+    // Damage the main ship if it is within ~70 pixels
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
 			this.isAlive = false;
@@ -223,12 +217,15 @@ class MeleeEnemy extends Enemy{
 	}
 }
 
+// An enemy that slows to a stop close to the main ship and shoots projectiles until shot
 class RangeEnemy extends Enemy{
+    // Spawn in an enemy with health scaling relative to the levelNum
 	constructor(){
 		super("range",Math.floor(10*Math.pow(1.1,levelNum)),250,PIXI.loader.resources["images/AlienRange.png"].texture);
         this.cooldown = 2.5;
         this.currentCooldown = 0.0;
 	}
+    // Slow down at ~270 pixels away, stop and fire upon the ship once within range
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 75000){
 			this.speed /= 1.02;
@@ -243,7 +240,9 @@ class RangeEnemy extends Enemy{
 	}
 }
 
+// Bullets fired by the RangeEnemy class; unstoppable and will damage the ship unless the level ends beforehand
 class EnemyBullet extends PIXI.Graphics{
+    // Spawn in a bullet at the RangeEnemy's current location
     constructor(x,y,dir,rotation,color=0xFF0000){
         super();
         this.beginFill(color);
@@ -259,6 +258,7 @@ class EnemyBullet extends PIXI.Graphics{
         Object.seal(this);
         gameScene.addChild(this);
     }
+    // Move closer to the ship; if it is within ~44 pixels, collide with the ship and damage it
     move(dt=1/60){
         this.x += this.fwd.x * this.speed * dt;
         this.y += this.fwd.y * this.speed * dt;
@@ -269,7 +269,7 @@ class EnemyBullet extends PIXI.Graphics{
     }
 }
 
-// NOTE: BuffEnemy not used
+// NOTE: BuffEnemy not used in current build
 /* class BuffEnemy extends Enemy{
 	constructor(){
 		super("buff");
@@ -279,10 +279,13 @@ class EnemyBullet extends PIXI.Graphics{
 	}
 } */
 
+// A melee attack enemy that temporarily slows down the ship's fire rate and rotation rate upon collision
 class NerfEnemy extends Enemy{
+    // Spawn in an enemy with health scaling relative to the levelNum
 	constructor(){
 		super("nerf",Math.floor(10*Math.pow(1.1,levelNum)),250,PIXI.loader.resources["images/AlienNerf.png"].texture);
 	}
+    // If the ship is within ~70 pixels, collide and cause damage
 	attack(dt){
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
             this.isAlive = false;
