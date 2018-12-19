@@ -558,8 +558,8 @@ function clickEvent(e){
         mainShip.Fire(aliens);
         shootSound.play();
     }
-	for(let i = 0; i<aliens.length;i++){
-		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 4000){
+	for(let i = 0; i<aliens.length;i++){ 
+		if((((e.clientX - aliens[i].x)*(e.clientX - aliens[i].x)) + ((e.clientY - aliens[i].y)*(e.clientY - aliens[i].y))) < 5000){
 			aliens[i].takeDamage(100);
 	    }
 	}
@@ -610,6 +610,10 @@ function gameLoop(){
     {
         alien.attack(dt);
     }
+    for(let eBullet of mainShip.enemyBullets)
+    {
+        eBullet.move(dt);
+    }
 	
 	for(let c of aliens){
         for(let b of bullets){
@@ -626,12 +630,22 @@ function gameLoop(){
     
 	// #6 - Now do some clean up
 	bullets = bullets.filter(b=>b.isAlive);
+    for(let i = 0; i < mainShip.enemyBullets.length; i++)
+    {
+        if(mainShip.enemyBullets[i].isAlive == false)
+        {
+            gameScene.removeChild(mainShip.enemyBullets[i]);
+            mainShip.enemyBullets.splice(i,1);
+            i--;
+        }
+    }
     for(let i = 0; i < aliens.length; i++)
     {
         if(aliens[i].isAlive == false)
         {
             gameScene.removeChild(aliens[i]);
             aliens.splice(i,1);
+            i--;
         }
     }
     //explosions = explosions.filter(e=>e.playing);

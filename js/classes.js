@@ -13,10 +13,11 @@ class Ship extends PIXI.Sprite{
 		this.ShotsToFire = 1;
 		this.currentTime = 0;
 		this.bulletDamage = 1;
-		this.defense = 1000;
+		this.defense = 0;
 		this.fireTime = 2;
         this.shotCooldown = 1.0;
         this.timeMultiplier = 1.0;
+        this.enemyBullets = [];
     }
 	
 	Fire(enemyArray, dt=0){
@@ -224,19 +225,18 @@ class MeleeEnemy extends Enemy{
 class RangeEnemy extends Enemy{
 	constructor(){
 		super("range", 10, 200);
-        this.cooldown = 1.0;
+        this.cooldown = 3.0;
         this.currentCooldown = 0.0;
-        this.bullets = [];
 	}
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 75000){
 			this.speed /= 1.05;
             // Shoot a shot every (this.cooldown) seconds 
-            this.currentCooldown -= dt;
-            if(this.currentCooldown <= 0)
+            this.currentCooldown += dt;
+            if(this.currentCooldown >= this.cooldown)
             {
-                this.currentCooldown = this.cooldown;
-                this.bullets += new BulletEnemy(this.x, this.y);
+                this.currentCooldown = 0;
+                mainShip.enemyBullets.push(new EnemyBullet(this.x, this.y, this.fwd, this.rotation));
             }
 	    }
 	}
@@ -256,29 +256,14 @@ class EnemyBullet extends PIXI.Graphics{
 		this.fwd = dir;
         this.isAlive = true;
         Object.seal(this);
+        gameScene.addChild(this);
     }
     move(dt=1/60){
         this.x += this.fwd.x * this.speed * dt;
         this.y += this.fwd.y * this.speed * dt;
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 2000){
             this.isAlive = false;
-            mainShip.takeDamage(1);
-            console.log(mainShip.health);
-        }
-    }
-}
-
-class BulletEnemy extends Enemy{
-    constructor(x, y, fwd){
-        super("bulletE", 1, 100);
-        this.scale.set(0.1);
-        this.fwd = fwd;
-    }
-    attack(dt)
-    {
-        if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 3000){
-            this.isAlive = false;
-            mainShip.takeDamage(2);
+            mainShip.takeDamage(Math.floor(1 + levelNum/3));
             console.log(mainShip.health);
         }
     }
