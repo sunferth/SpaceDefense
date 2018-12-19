@@ -47,6 +47,7 @@ let waveArray = [];
 let levelNum = 1;
 let paused = true;
 let distMod = 400; // Used for determining how far apart enemies will spawn (25 + Math.random(0, distMod));
+let loadWave;
 
 function setup() {
 	mainShip = new Ship();
@@ -204,7 +205,7 @@ function SetUpShop(){
 	MoneyMultiIcon.y = 220;
 	shopScene.addChild(MoneyMultiIcon);
 	//Draw Buttons
-	ShipSpin = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+	ShipSpin = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
     ShipSpin.style = buttonStyle;
     ShipSpin.x = 35;
     ShipSpin.y = 375;
@@ -215,7 +216,7 @@ function SetUpShop(){
     ShipSpin.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(ShipSpin);
 	
-	FireButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+	FireButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
     FireButt.style = buttonStyle;
     FireButt.x = 185;
     FireButt.y = 375;
@@ -226,7 +227,7 @@ function SetUpShop(){
     FireButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(FireButt);
 	
-	ShipDamButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+	ShipDamButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
     ShipDamButt.style = buttonStyle;
     ShipDamButt.x = 335;
     ShipDamButt.y = 375;
@@ -237,7 +238,7 @@ function SetUpShop(){
     ShipDamButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(ShipDamButt);
 	
-	ShipDefButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+	ShipDefButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
     ShipDefButt.style = buttonStyle;
     ShipDefButt.x = 485;
     ShipDefButt.y = 375;
@@ -248,7 +249,7 @@ function SetUpShop(){
     ShipDefButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(ShipDefButt);
 	
-	BulletButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+	BulletButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
     BulletButt.style = buttonStyle;
     BulletButt.x = 635;
     BulletButt.y = 375;
@@ -259,7 +260,7 @@ function SetUpShop(){
     BulletButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(BulletButt);
 	
-	MoneyButt = new PIXI.Text("Cost: " + Math.pow(10,upgrades[0]));
+	MoneyButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
     MoneyButt.style = buttonStyle;
     MoneyButt.x = 785;
     MoneyButt.y = 375;
@@ -298,7 +299,7 @@ function SetUpShop(){
 	shopScene.addChild(MouseAOEIcon);
 	
 	//Draw 2 Button
-	MouseButtonDam = new PIXI.Text("Upgrade Cost: " + Math.pow(10,upgrades[6]));
+	MouseButtonDam = new PIXI.Text("Upgrade: $" + Math.pow(10,upgrades[6]));
     MouseButtonDam.style = buttonStyle;
     MouseButtonDam.x = 150;
     MouseButtonDam.y = sceneHeight - 170;
@@ -309,7 +310,7 @@ function SetUpShop(){
     MouseButtonDam.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(MouseButtonDam);
 	
-	MouseButtonAOE = new PIXI.Text("Upgrade Cost: " + Math.pow(10,upgrades[7]));
+	MouseButtonAOE = new PIXI.Text("Upgrade: $" + Math.pow(10,upgrades[7]));
     MouseButtonAOE.style = buttonStyle;
     MouseButtonAOE.x = 550;
     MouseButtonAOE.y = sceneHeight - 170;
@@ -338,7 +339,7 @@ function spinUpgrade(){
 		mainShip.rotationDivider/=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[0]));
 		upgrades[0]++;
-		ShipSpin.text = "Cost: "+Math.pow(10,upgrades[0]);
+		ShipSpin.text = "$"+Math.pow(10,upgrades[0]);
         upgradeSound.play();
 	}
 }
@@ -348,17 +349,17 @@ function fireUpgrade(){
 		mainShip.ShotsPerSec+=1;
 		increaseScoreBy(-1*Math.pow(10,upgrades[1]));
 		upgrades[1]++;
-		FireButt.text = "Cost: "+Math.pow(10,upgrades[1]);
+		FireButt.text = "$"+Math.pow(10,upgrades[1]);
         upgradeSound.play();
 	}
 }
 
 function shipDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[2])){
-		mainShip.bulletDamage+=2;
+		mainShip.bulletDamage+=20;
 		increaseScoreBy(-1*Math.pow(10,upgrades[2]));
 		upgrades[2]++;
-		ShipDamButt.text = "Cost: "+Math.pow(10,upgrades[2]);
+		ShipDamButt.text = "$"+Math.pow(10,upgrades[2]);
         upgradeSound.play();
 	}
 }
@@ -368,7 +369,7 @@ function shipDefUpgrade(){
 		mainShip.defense+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[3]));
 		upgrades[3]++;
-		ShipDefButt.text = "Cost: "+Math.pow(10,upgrades[3]);
+		ShipDefButt.text = "$"+Math.pow(10,upgrades[3]);
         upgradeSound.play();
 	}
 }
@@ -378,7 +379,7 @@ function bulletUpgrade(){
 		mainShip.ShotsToFire+=1;
 		increaseScoreBy(-1*Math.pow(10,upgrades[4]));
 		upgrades[4]++;
-		BulletButt.text = "Cost: "+Math.pow(10,upgrades[4]);
+		BulletButt.text = "$"+Math.pow(10,upgrades[4]);
         upgradeSound.play();
 	}
 }
@@ -388,7 +389,7 @@ function moneyUpgrade(){
 		moneyMulti*=1.5;
 		increaseScoreBy(-1*Math.pow(10,upgrades[5]));
 		upgrades[5]++;
-		MoneyButt.text = "Cost: "+Math.pow(10,upgrades[5]);
+		MoneyButt.text = "$"+Math.pow(10,upgrades[5]);
         upgradeSound.play();
 	}
 }
@@ -398,7 +399,7 @@ function mouseDamUpgrade(){
 		mouseDam+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[6]));
 		upgrades[6]++;
-		MouseButtonDam.text = "Upgrade Cost: "+Math.pow(10,upgrades[6]);
+		MouseButtonDam.text = "Upgrade: $"+Math.pow(10,upgrades[6]);
         upgradeSound.play();
 	}
 }
@@ -408,7 +409,7 @@ function mouseAOEUpgrade(){
 		mouseAOE+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[7]));
 		upgrades[7]++;
-		MouseButtonAOE.text = "Upgrade Cost: "+Math.pow(10,upgrades[7]);
+		MouseButtonAOE.text = "Upgrade: $"+Math.pow(10,upgrades[7]);
         upgradeSound.play();
 	}
 }
@@ -511,13 +512,16 @@ function startWave(){
 		gameScene.removeChild(bullets[i]);
 	}
 	bullets = [];
-    if(waveArray.length < levelNum)
-    {
-        endGame();
-        return;
-    }
     // Transfer all wave enemies into the active array
-    let loadWave = waveArray[levelNum - 1];
+    if(levelNum >= waveArray.length)
+    {
+        loadWave = waveArray[waveArray.length - 1];
+    }
+    else
+    {
+        loadWave = waveArray[levelNum - 1];
+    }
+    
     for(let i = 0; i < loadWave.melee; i++)
     {
         aliens.push(new MeleeEnemy());
@@ -544,7 +548,7 @@ function startWave(){
     let y;
     
     // Make enemies spawn with slightly less distance between each enemy (min 20 pixels)
-    distMod *= 0.9;
+    distMod = distance * Math.pow(0.9, levelNum);
     
     for(let i = 0; i < aliens.length; i++)
     {
@@ -555,9 +559,7 @@ function startWave(){
         if(Math.random() >= 0.5) x *= -1;
         
         aliens[i].setPosition(x*distance + mainShip.x, y*distance + mainShip.y);
-        distance += 20 + Math.random() * distMod;
-        
-        console.log(distMod);
+        distance += 5 + Math.random() * distMod;
         
         gameScene.addChild(aliens[i]);
     }
@@ -671,12 +673,9 @@ function gameLoop(){
 		//explosions = explosions.filter(e=>e.playing);
 
 		// #8 - Load next level
-		// TODO: Add condition of "if there are no more waves and no aliens exist on the screen, end the game
-		if(false){
-			endGame("win");
-		}
-		// TODO: Change this to have a condition that meets clicking on a "Next Level" button
-		else if (aliens === undefined || aliens.length == 0){
+		
+		// If there are no aliens left, end the wave and go to the shop
+        else if (aliens === undefined || aliens.length == 0){
 			if(aliens === undefined)
 				console.log(undefined);
 			else{
