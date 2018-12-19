@@ -11,7 +11,7 @@ const sceneHeight = app.view.height;
 
 // pre-load the images
 PIXI.loader.
-add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png","images/AlienNerf.png"]).
+add(["images/Spaceship.png","images/SpaceBackground.png","upgradeImages/AOE.png","upgradeImages/Box.png","upgradeImages/Bullets.png","upgradeImages/ClickDam.png","upgradeImages/Damage.png","upgradeImages/Defense.png","upgradeImages/FireRate.png","upgradeImages/SpinUpgrade.png","upgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png","images/AlienNerf.png"]).
 on("progress",e=>{/*console.log(`progress=${e.progress}`)*/}).
 load(setup);
 
@@ -29,14 +29,14 @@ let upgradeSound;
 let backgroundMusic;
 let transitionLabel;
 let transitionScene;
-let MouseButtonAOE;
-let MouseButtonDam;
-let ShipSpin;
-let FireButt;
-let ShipDamButt;
-let ShipDefButt;
-let BulletButt;
-let MoneyButt;
+let mouseButtonAOE;
+let mouseButtonDam;
+let shipSpin;
+let fireButt;
+let shipDamButt;
+let shipDefButt;
+let bulletButt;
+let moneyButt;
 let shopScene;
 let mainShip;
 let mouseDam = 5;
@@ -45,7 +45,6 @@ let mouseAOE = 1;
 let bullets = [];
 let aliens = [];
 let upgrades = [];
-let explosionTextures;
 let score = 0;
 let money = 1000;
 let life = 100;
@@ -57,44 +56,45 @@ let loadWave;
 
 //Sets up all necessary variables 
 function setup() {
+    // Spawn in the main ship
 	mainShip = new Ship();
+    // Load the waves.txt file containing information on waves
     $.get('waves.txt', function(data) {
-    SetUpWaves(data)
+    setUpWaves(data)
 	}, 'text');
-	
 	
     stage = app.stage;
 	
-    // #1 - Create the `start` scene
+    // Create the `start` scene
     startScene = new PIXI.Container();
 	startScene.visible = true;
     stage.addChild(startScene);
 	
-    // #2 - Create the main `game` scene and make it invisible
+    // Create the main `game` scene and make it invisible
     gameScene = new PIXI.Container();
     gameScene.visible = false;
     stage.addChild(gameScene);
 	
-    // #3 - Create the main `game` scene and make it invisible
+    // Create the `shop` scene and make it invisible
     shopScene = new PIXI.Container();
-	SetUpShop();
+	setUpShop();
     shopScene.visible = false;
     stage.addChild(shopScene);
 
-    // #4 - Create labels for all 3 scenes
+    // Create labels for all 3 scenes
     createLabelsAndButtons();
-    // #5 - Create ship
     
+    // Create ship
     gameScene.addChild(mainShip);
-    // #6 - Load Sounds
+    
+    // Load sounds
     {
     shootSound = new Howl({
         src: ['sounds/shots.wav']
     });
-
     upgradeSound = new Howl({
         src: ['sounds/upgrade.wav']
-    });
+    }); 
     //backgroundMusic 	
 	backgroundMusic = new Howl({
         src: ['sounds/space.mp3'],
@@ -102,17 +102,17 @@ function setup() {
 		autoplay:true
     });
     }
-    // #7 - Load sprite sheet
-    explosionTextures = loadSpriteSheet("images/explosions.png");
-    // #8 - Start update loop
+    
+    // Start update loop
     app.ticker.add(gameLoop);
-    // #9 - Start listening for click events on the canvas
+    
+    // Start listening for click events on the canvas
     app.view.onclick = clickEvent;
-    // Now our `startScene` is visible
     // Clicking the button calls startGame()
 }
+
 // Uses waves.txt and stores all wave-related data in waveArray[...]
-function SetUpWaves(data){
+function setUpWaves(data){
 	 let wavesString = [];
 	 wavesString = data.split("\n");
      // Starts at i = 1 to account for the first line being documentation
@@ -123,8 +123,9 @@ function SetUpWaves(data){
     // Remove empty first element
     waveArray.shift();
 }
+
 //Sets up the entire shop scene
-function SetUpShop(){
+function setUpShop(){
 	let buttonStyle = new PIXI.TextStyle({
         fill: 0xFF0000,
         fontSize: 36,
@@ -164,108 +165,108 @@ function SetUpShop(){
     shipLabel.y = 150;
     shopScene.addChild(shipLabel);
 	//Draw 6 Upgrade Icons
-	let ShipSpinIcon = new PIXI.Sprite.fromImage("UpgradeImages/SpinUpgrade.png");
-	ShipSpinIcon.width = 100;
-	ShipSpinIcon.height = 140;
-	ShipSpinIcon.x = 35;
-	ShipSpinIcon.y = 220;
-	shopScene.addChild(ShipSpinIcon);
-	let FireRateIcon = new PIXI.Sprite.fromImage("UpgradeImages/FireRate.png");
-	FireRateIcon.width = 200;
-	FireRateIcon.height = 140;
-	FireRateIcon.x = 75;
-	FireRateIcon.y = 220;
-	shopScene.addChild(FireRateIcon);
-	let ShipDamIcon = new PIXI.Sprite.fromImage("UpgradeImages/Damage.png");
-	ShipDamIcon.width = 100;
-	ShipDamIcon.height = 140;
-	ShipDamIcon.x = 330;
-	ShipDamIcon.y = 220;
-	shopScene.addChild(ShipDamIcon);
-	let DefIcon = new PIXI.Sprite.fromImage("UpgradeImages/Defense.png");
-	DefIcon.width = 100;
-	DefIcon.height = 140;
-	DefIcon.x = 485;
-	DefIcon.y = 220;
-	shopScene.addChild(DefIcon);
-	let BullFiredIcon = new PIXI.Sprite.fromImage("UpgradeImages/Bullets.png");
-	BullFiredIcon.width = 100;
-	BullFiredIcon.height = 140;
-	BullFiredIcon.x = 635;
-	BullFiredIcon.y = 220;
-	shopScene.addChild(BullFiredIcon);
-	let MoneyMultiIcon = new PIXI.Sprite.fromImage("UpgradeImages/Money.png");
-	MoneyMultiIcon.width = 100;
-	MoneyMultiIcon.height = 140;
-	MoneyMultiIcon.x = 785;
-	MoneyMultiIcon.y = 220;
-	shopScene.addChild(MoneyMultiIcon);
+	let shipSpinIcon = new PIXI.Sprite.fromImage("upgradeImages/SpinUpgrade.png");
+	shipSpinIcon.width = 100;
+	shipSpinIcon.height = 140;
+	shipSpinIcon.x = 35;
+	shipSpinIcon.y = 220;
+	shopScene.addChild(shipSpinIcon);
+	let fireRateIcon = new PIXI.Sprite.fromImage("upgradeImages/FireRate.png");
+	fireRateIcon.width = 200;
+	fireRateIcon.height = 140;
+	fireRateIcon.x = 75;
+	fireRateIcon.y = 220;
+	shopScene.addChild(fireRateIcon);
+	let shipDamIcon = new PIXI.Sprite.fromImage("upgradeImages/Damage.png");
+	shipDamIcon.width = 100;
+	shipDamIcon.height = 140;
+	shipDamIcon.x = 330;
+	shipDamIcon.y = 220;
+	shopScene.addChild(shipDamIcon);
+	let defIcon = new PIXI.Sprite.fromImage("upgradeImages/Defense.png");
+	defIcon.width = 100;
+	defIcon.height = 140;
+	defIcon.x = 485;
+	defIcon.y = 220;
+	shopScene.addChild(defIcon);
+	let bullFiredIcon = new PIXI.Sprite.fromImage("upgradeImages/Bullets.png");
+	bullFiredIcon.width = 100;
+	bullFiredIcon.height = 140;
+	bullFiredIcon.x = 635;
+	bullFiredIcon.y = 220;
+	shopScene.addChild(bullFiredIcon);
+	let moneyMultiIcon = new PIXI.Sprite.fromImage("upgradeImages/Money.png");
+	moneyMultiIcon.width = 100;
+	moneyMultiIcon.height = 140;
+	moneyMultiIcon.x = 785;
+	moneyMultiIcon.y = 220;
+	shopScene.addChild(moneyMultiIcon);
 	//Draw Buttons
-	ShipSpin = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
-    ShipSpin.style = buttonStyle;
-    ShipSpin.x = 35;
-    ShipSpin.y = 375;
-    ShipSpin.interactive = true;
-    ShipSpin.buttonMode = true;
-    ShipSpin.on("pointerup",spinUpgrade);
-    ShipSpin.on('pointerover',e=> e.target.alpha = 0.7);
-    ShipSpin.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(ShipSpin);
+	shipSpin = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
+    shipSpin.style = buttonStyle;
+    shipSpin.x = 35;
+    shipSpin.y = 375;
+    shipSpin.interactive = true;
+    shipSpin.buttonMode = true;
+    shipSpin.on("pointerup",spinUpgrade);
+    shipSpin.on('pointerover',e=> e.target.alpha = 0.7);
+    shipSpin.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(shipSpin);
 	
-	FireButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
-    FireButt.style = buttonStyle;
-    FireButt.x = 185;
-    FireButt.y = 375;
-    FireButt.interactive = true;
-    FireButt.buttonMode = true;
-    FireButt.on("pointerup",fireUpgrade);
-    FireButt.on('pointerover',e=> e.target.alpha = 0.7);
-    FireButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(FireButt);
+	fireButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
+    fireButt.style = buttonStyle;
+    fireButt.x = 185;
+    fireButt.y = 375;
+    fireButt.interactive = true;
+    fireButt.buttonMode = true;
+    fireButt.on("pointerup",fireUpgrade);
+    fireButt.on('pointerover',e=> e.target.alpha = 0.7);
+    fireButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(fireButt);
 	
-	ShipDamButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
-    ShipDamButt.style = buttonStyle;
-    ShipDamButt.x = 335;
-    ShipDamButt.y = 375;
-    ShipDamButt.interactive = true;
-    ShipDamButt.buttonMode = true;
-    ShipDamButt.on("pointerup",shipDamUpgrade);
-    ShipDamButt.on('pointerover',e=> e.target.alpha = 0.7);
-    ShipDamButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(ShipDamButt);
+	shipDamButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
+    shipDamButt.style = buttonStyle;
+    shipDamButt.x = 335;
+    shipDamButt.y = 375;
+    shipDamButt.interactive = true;
+    shipDamButt.buttonMode = true;
+    shipDamButt.on("pointerup",shipDamUpgrade);
+    shipDamButt.on('pointerover',e=> e.target.alpha = 0.7);
+    shipDamButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(shipDamButt);
 	
-	ShipDefButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
-    ShipDefButt.style = buttonStyle;
-    ShipDefButt.x = 485;
-    ShipDefButt.y = 375;
-    ShipDefButt.interactive = true;
-    ShipDefButt.buttonMode = true;
-    ShipDefButt.on("pointerup",shipDefUpgrade);
-    ShipDefButt.on('pointerover',e=> e.target.alpha = 0.7);
-    ShipDefButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(ShipDefButt);
+	shipDefButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
+    shipDefButt.style = buttonStyle;
+    shipDefButt.x = 485;
+    shipDefButt.y = 375;
+    shipDefButt.interactive = true;
+    shipDefButt.buttonMode = true;
+    shipDefButt.on("pointerup",shipDefUpgrade);
+    shipDefButt.on('pointerover',e=> e.target.alpha = 0.7);
+    shipDefButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(shipDefButt);
 	
-	BulletButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
-    BulletButt.style = buttonStyle;
-    BulletButt.x = 635;
-    BulletButt.y = 375;
-    BulletButt.interactive = true;
-    BulletButt.buttonMode = true;
-    BulletButt.on("pointerup",bulletUpgrade);
-    BulletButt.on('pointerover',e=> e.target.alpha = 0.7);
-    BulletButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(BulletButt);
+	bulletButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
+    bulletButt.style = buttonStyle;
+    bulletButt.x = 635;
+    bulletButt.y = 375;
+    bulletButt.interactive = true;
+    bulletButt.buttonMode = true;
+    bulletButt.on("pointerup",bulletUpgrade);
+    bulletButt.on('pointerover',e=> e.target.alpha = 0.7);
+    bulletButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(bulletButt);
 	
-	MoneyButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
-    MoneyButt.style = buttonStyle;
-    MoneyButt.x = 785;
-    MoneyButt.y = 375;
-    MoneyButt.interactive = true;
-    MoneyButt.buttonMode = true;
-    MoneyButt.on("pointerup",moneyUpgrade);
-    MoneyButt.on('pointerover',e=> e.target.alpha = 0.7);
-    MoneyButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(MoneyButt);
+	moneyButt = new PIXI.Text("$" + Math.pow(10,upgrades[0]));
+    moneyButt.style = buttonStyle;
+    moneyButt.x = 785;
+    moneyButt.y = 375;
+    moneyButt.interactive = true;
+    moneyButt.buttonMode = true;
+    moneyButt.on("pointerup",moneyUpgrade);
+    moneyButt.on('pointerover',e=> e.target.alpha = 0.7);
+    moneyButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(moneyButt);
 	
 	//Draw MouseSubCat
 	let mouseLabel = new PIXI.Text("Mouse Upgrades");
@@ -280,54 +281,54 @@ function SetUpShop(){
     mouseLabel.y = 450;
     shopScene.addChild(mouseLabel);
 	//Draw 2 Upgrade Icon
-	let MouseDamIcon = new PIXI.Sprite.fromImage("UpgradeImages/ClickDam.png");
-	MouseDamIcon.width = 100;
-	MouseDamIcon.height = 140;
-	MouseDamIcon.x = 35;
-	MouseDamIcon.y = 550;
-	shopScene.addChild(MouseDamIcon);
+	let mouseDamIcon = new PIXI.Sprite.fromImage("upgradeImages/ClickDam.png");
+	mouseDamIcon.width = 100;
+	mouseDamIcon.height = 140;
+	mouseDamIcon.x = 35;
+	mouseDamIcon.y = 550;
+	shopScene.addChild(mouseDamIcon);
 	
-	let MouseAOEIcon = new PIXI.Sprite.fromImage("UpgradeImages/AOE.png");
-	MouseAOEIcon.width = 100;
-	MouseAOEIcon.height = 140;
-	MouseAOEIcon.x = 435;
-	MouseAOEIcon.y = 550;
-	shopScene.addChild(MouseAOEIcon);
+	let mouseAOEIcon = new PIXI.Sprite.fromImage("upgradeImages/AOE.png");
+	mouseAOEIcon.width = 100;
+	mouseAOEIcon.height = 140;
+	mouseAOEIcon.x = 435;
+	mouseAOEIcon.y = 550;
+	shopScene.addChild(mouseAOEIcon);
 	
 	//Draw 2 Button
-	MouseButtonDam = new PIXI.Text("Upgrade: $" + Math.pow(10,upgrades[6]));
-    MouseButtonDam.style = buttonStyle;
-    MouseButtonDam.x = 150;
-    MouseButtonDam.y = sceneHeight - 170;
-    MouseButtonDam.interactive = true;
-    MouseButtonDam.buttonMode = true;
-    MouseButtonDam.on("pointerup",mouseDamUpgrade);
-    MouseButtonDam.on('pointerover',e=> e.target.alpha = 0.7);
-    MouseButtonDam.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(MouseButtonDam);
+	mouseButtonDam = new PIXI.Text("Upgrade: $" + Math.pow(10,upgrades[6]));
+    mouseButtonDam.style = buttonStyle;
+    mouseButtonDam.x = 150;
+    mouseButtonDam.y = sceneHeight - 170;
+    mouseButtonDam.interactive = true;
+    mouseButtonDam.buttonMode = true;
+    mouseButtonDam.on("pointerup",mouseDamUpgrade);
+    mouseButtonDam.on('pointerover',e=> e.target.alpha = 0.7);
+    mouseButtonDam.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(mouseButtonDam);
 	
-	MouseButtonAOE = new PIXI.Text("Upgrade: $" + Math.pow(10,upgrades[7]));
-    MouseButtonAOE.style = buttonStyle;
-    MouseButtonAOE.x = 550;
-    MouseButtonAOE.y = sceneHeight - 170;
-    MouseButtonAOE.interactive = true;
-    MouseButtonAOE.buttonMode = true;
-    MouseButtonAOE.on("pointerup",mouseAOEUpgrade);
-    MouseButtonAOE.on('pointerover',e=> e.target.alpha = 0.7);
-    MouseButtonAOE.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(MouseButtonAOE);
+	mouseButtonAOE = new PIXI.Text("Upgrade: $" + Math.pow(10,upgrades[7]));
+    mouseButtonAOE.style = buttonStyle;
+    mouseButtonAOE.x = 550;
+    mouseButtonAOE.y = sceneHeight - 170;
+    mouseButtonAOE.interactive = true;
+    mouseButtonAOE.buttonMode = true;
+    mouseButtonAOE.on("pointerup",mouseAOEUpgrade);
+    mouseButtonAOE.on('pointerover',e=> e.target.alpha = 0.7);
+    mouseButtonAOE.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(mouseButtonAOE);
 	
 	//Draw Back to Game Button
-	let BackToGameButt = new PIXI.Text("Back To Game");
-    BackToGameButt.style = buttonStyle;
-    BackToGameButt.x = 775;
-    BackToGameButt.y = 10;
-    BackToGameButt.interactive = true;
-    BackToGameButt.buttonMode = true;
-    BackToGameButt.on("pointerup",closeStore);
-    BackToGameButt.on('pointerover',e=> e.target.alpha = 0.7);
-    BackToGameButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
-    shopScene.addChild(BackToGameButt);
+	let backToGameButt = new PIXI.Text("Back To Game");
+    backToGameButt.style = buttonStyle;
+    backToGameButt.x = 775;
+    backToGameButt.y = 10;
+    backToGameButt.interactive = true;
+    backToGameButt.buttonMode = true;
+    backToGameButt.on("pointerup",closeStore);
+    backToGameButt.on('pointerover',e=> e.target.alpha = 0.7);
+    backToGameButt.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    shopScene.addChild(backToGameButt);
 	
 	//Draw Back to Game Button
 	let resetButton = new PIXI.Text("Reset");
@@ -336,91 +337,100 @@ function SetUpShop(){
     resetButton.y = 600;
     resetButton.interactive = true;
     resetButton.buttonMode = true;
-    resetButton.on("pointerup",Reset);
+    resetButton.on("pointerup",reset);
     resetButton.on('pointerover',e=> e.target.alpha = 0.7);
     resetButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
     shopScene.addChild(resetButton);
 }
+
 //Upgrades spin speeds
 function spinUpgrade(){
 	if(money >= Math.pow(10,upgrades[0])){
 		mainShip.rotationDivider/=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[0]));
 		upgrades[0]++;
-		ShipSpin.text = "$"+Math.pow(10,upgrades[0]);
+		shipSpin.text = "$"+Math.pow(10,upgrades[0]);
         upgradeSound.play();
 	}
 }
+
 //Upgrades fire speed
 function fireUpgrade(){
 	if(money >= Math.pow(10,upgrades[1])){
-		mainShip.ShotsPerSec+=1;
+		mainShip.shotsPerSec+=1;
 		increaseScoreBy(-1*Math.pow(10,upgrades[1]));
 		upgrades[1]++;
-		FireButt.text = "$"+Math.pow(10,upgrades[1]);
+		fireButt.text = "$"+Math.pow(10,upgrades[1]);
         upgradeSound.play();
 	}
 }
+
 //upgrades ship damage
 function shipDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[2])){
 		mainShip.bulletDamage+=20;
 		increaseScoreBy(-1*Math.pow(10,upgrades[2]));
 		upgrades[2]++;
-		ShipDamButt.text = "$"+Math.pow(10,upgrades[2]);
+		shipDamButt.text = "$"+Math.pow(10,upgrades[2]);
         upgradeSound.play();
 	}
 }
+
 //upgrades ship def
 function shipDefUpgrade(){
 	if(money >= Math.pow(10,upgrades[3])){
 		mainShip.defense+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[3]));
 		upgrades[3]++;
-		ShipDefButt.text = "$"+Math.pow(10,upgrades[3]);
+		shipDefButt.text = "$"+Math.pow(10,upgrades[3]);
         upgradeSound.play();
 	}
 }
+
 //upgrades bullet amount
 function bulletUpgrade(){
 	if(money >= Math.pow(10,upgrades[4])){
-		mainShip.ShotsToFire+=1;
+		mainShip.shotsToFire+=1;
 		increaseScoreBy(-1*Math.pow(10,upgrades[4]));
 		upgrades[4]++;
-		BulletButt.text = "$"+Math.pow(10,upgrades[4]);
+		bulletButt.text = "$"+Math.pow(10,upgrades[4]);
         upgradeSound.play();
 	}
 }
+
 //upgrades money multi
 function moneyUpgrade(){
 	if(money >= Math.pow(10,upgrades[5])){
 		moneyMulti*=1.5;
 		increaseScoreBy(-1*Math.pow(10,upgrades[5]));
 		upgrades[5]++;
-		MoneyButt.text = "$"+Math.pow(10,upgrades[5]);
+		moneyButt.text = "$"+Math.pow(10,upgrades[5]);
         upgradeSound.play();
 	}
 }
-//Upgrades the mouse Damge
+
+//Upgrades the mouse Damage
 function mouseDamUpgrade(){
 	if(money >= Math.pow(10,upgrades[6])){
 		mouseDam+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[6]));
 		upgrades[6]++;
-		MouseButtonDam.text = "Upgrade: $"+Math.pow(10,upgrades[6]);
+		mouseButtonDam.text = "Upgrade: $"+Math.pow(10,upgrades[6]);
         upgradeSound.play();
 	}
 }
+
 //upgrades mouse range
 function mouseAOEUpgrade(){
 	if(money >= Math.pow(10,upgrades[7])){
 		mouseAOE+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[7]));
 		upgrades[7]++;
-		MouseButtonAOE.text = "Upgrade: $"+Math.pow(10,upgrades[7]);
+		mouseButtonAOE.text = "Upgrade: $"+Math.pow(10,upgrades[7]);
         upgradeSound.play();
 	}
 }
+
 //creates and implements all labels and buttons 
 function createLabelsAndButtons(){
     let buttonStyle = new PIXI.TextStyle({
@@ -488,24 +498,22 @@ function createLabelsAndButtons(){
     mainShip.takeDamage(0);
 
 }
+
 //Edits Money and updates labels
 function increaseScoreBy(value){
     money+= value;
     moneyLabel.text = `Money: ${money}`;
 }
+
 //loads game from local storage
 function loadGame(){
 	
 	let level = localStorage.getItem("sru4607WaveNumber");
-	console.log(level);
 	let prevHealth = localStorage.getItem("sru4607HealthNumber");
-	console.log(prevHealth);
 	let prevMoney = localStorage.getItem("sru4607MoneyNumber");
-	console.log(prevMoney);
 	let prevUpgrades = localStorage.getItem("sru4607Upgrades");
-	console.log(prevUpgrades);
 	if(levelNum != null && prevHealth != null && prevMoney != null && prevUpgrades != null){
-		Reset();
+		reset();
 		mainShip.health = prevHealth;
 		money = 1000000000000000000000;
 		for(let i = 0; i<prevUpgrades.length;i++){
@@ -551,10 +559,10 @@ function loadGame(){
 		moneyLabel.text = "Money: "+money;
 		levelNum = parseInt(level);
 	}
-	
 }
+
 //Resets the fields controlling the game set up
-function Reset(){
+function reset(){
 	//resets the fields
 	levelNum = 1;
 	money = 0;
@@ -563,8 +571,8 @@ function Reset(){
 	mainShip.rotationDivider = 256;
 	mainShip.bulletDamage = 1;
 	mainShip.defense = 0;
-	mainShip.ShotsToFire = 1;
-	mainShip.ShotsPerSec = 1;
+	mainShip.shotsToFire = 1;
+	mainShip.shotsPerSec = 1;
 	moneyMulti = 1;
 	mouseAOE = 0;
 	mouseDam = 5;
@@ -578,6 +586,7 @@ function Reset(){
 		window.location.reload(true);
 	}
 }
+
 //sets the games starting parameters, and starts the first wave
 function startGame(){
     startScene.visible = false;
@@ -590,6 +599,7 @@ function startGame(){
 	loadGame();
     startWave();
 }
+
 //Spawn in all enemies for the current wave
 function startWave(){
 	localStorage.setItem("sru4607WaveNumber",levelNum);
@@ -657,17 +667,16 @@ function startWave(){
         
         gameScene.addChild(aliens[i]);
     }
-    
 	paused = false;
-  
 }
+
 //Ends games and reset it
 function endGame(state = "lose"){
     paused = true;
-	Reset();
+	reset();
 	window.location.reload(true);
-	
 }
+
 //Function called every time the user clicks within the web browser
 function clickEvent(e){
     // TODO: Replace with conditions for when a bullet should be fired
@@ -682,6 +691,7 @@ function clickEvent(e){
 	    }
 	}
 }
+
 //Loads sprite sheets
 function loadSpriteSheet(textureFile){
     let spriteSheet = PIXI.BaseTexture.fromImage(textureFile);
@@ -695,30 +705,17 @@ function loadSpriteSheet(textureFile){
     }
     return textures;
 }
-//creates explosions at coordinates
-function createExplosion(x,y,frameWidth,frameHeight){
-    let w2 = frameWidth/2;
-    let h2 = frameHeight/2;
-    let expl = new PIXI.extras.AnimatedSprite(explosionTextures);
-    expl.x= x - w2;
-    expl.y = y - h2;
-    expl.animationSpeed = 1/7;
-    expl.loop = false;
-    expl.onComplete = e => gameScene.removeChild(expl);
-    explosions.push(expl);
-    gameScene.addChild(expl);
-    expl.play();
-}
+
 //runs the entire game loop
 function gameLoop(){
-	if (paused) return; // keep this commented out for now
+	if (paused) return;
 	
-	// #1 - Calculate "delta time"
+	// Calculate "delta time"
     let dt = 1/app.ticker.FPS;
     if (dt > 1/12) dt=1/12;
 
 	if(gameScene.visible == true){
-		// #4 - Move bullets and enemies
+		// Move bullets and enemies
 		for (let b of bullets){
 			b.move(dt);
 		}
@@ -727,7 +724,7 @@ function gameLoop(){
 		}
 		mainShip.fire(aliens,dt);
 
-		// #5 - Make enemies attack
+		// Make enemies attack
 		for(let alien of aliens)
 		{
 			alien.attack(dt);
@@ -749,7 +746,7 @@ function gameLoop(){
 			}
 		}
 
-		// #6 - Now do some clean up
+		// Do some clean up
 		bullets = bullets.filter(b=>b.isAlive);
 		for(let i = 0; i < mainShip.enemyBullets.length; i++)
 		{
@@ -769,7 +766,6 @@ function gameLoop(){
 				i--;
 			}
 		}
-		//explosions = explosions.filter(e=>e.playing);
 
 		// If there are no aliens left, end the wave and go to the shop
         if (aliens === undefined || aliens.length == 0){
@@ -781,6 +777,7 @@ function gameLoop(){
 		}
 	}
 }
+
 //Runs the logic after each enemy is killed
 function endWave(){
     while(mainShip.enemyBullets.length > 0)
@@ -793,11 +790,13 @@ function endWave(){
 	shopScene.addChild(moneyLabel);
 	moneyLabel.text = "Money: "+money;
 }
+
 //Switches to the store
 function loadStore(){
 	transitionScene.visible = false;
 	shopScene.visible = true;
 }
+
 //closes the store and returns to the game
 function closeStore(){
 	shopScene.visible = false;
