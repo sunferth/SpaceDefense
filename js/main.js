@@ -482,6 +482,8 @@ function startGame(){
 
 // Spawn in all enemies for the current wave
 function startWave(){
+	localStorage.setItem("sru4607WaveNumber",levelNum);
+	localStorage.setItem("sru4607MoneyCurrent",money);
     while(aliens.length > 0)
     {
         gameScene.removeChild(aliens.shift());
