@@ -11,7 +11,7 @@ const sceneHeight = app.view.height;
 
 // pre-load the images
 PIXI.loader.
-add(["images/Spaceship.png","images/SpaceBackground.png","upgradeImages/AOE.png","upgradeImages/Box.png","upgradeImages/Bullets.png","upgradeImages/ClickDam.png","upgradeImages/Damage.png","upgradeImages/Defense.png","upgradeImages/FireRate.png","upgradeImages/SpinUpgrade.png","upgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png","images/AlienNerf.png"]).
+add(["images/Spaceship.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png","images/AlienNerf.png"]).
 on("progress",e=>{/*console.log(`progress=${e.progress}`)*/}).
 load(setup);
 
@@ -165,37 +165,37 @@ function setUpShop(){
     shipLabel.y = 150;
     shopScene.addChild(shipLabel);
 	//Draw 6 Upgrade Icons
-	let shipSpinIcon = new PIXI.Sprite.fromImage("upgradeImages/SpinUpgrade.png");
+	let shipSpinIcon = new PIXI.Sprite.fromImage("UpgradeImages/SpinUpgrade.png");
 	shipSpinIcon.width = 100;
 	shipSpinIcon.height = 140;
 	shipSpinIcon.x = 35;
 	shipSpinIcon.y = 220;
 	shopScene.addChild(shipSpinIcon);
-	let fireRateIcon = new PIXI.Sprite.fromImage("upgradeImages/FireRate.png");
+	let fireRateIcon = new PIXI.Sprite.fromImage("UpgradeImages/FireRate.png");
 	fireRateIcon.width = 200;
 	fireRateIcon.height = 140;
 	fireRateIcon.x = 75;
 	fireRateIcon.y = 220;
 	shopScene.addChild(fireRateIcon);
-	let shipDamIcon = new PIXI.Sprite.fromImage("upgradeImages/Damage.png");
+	let shipDamIcon = new PIXI.Sprite.fromImage("UpgradeImages/Damage.png");
 	shipDamIcon.width = 100;
 	shipDamIcon.height = 140;
 	shipDamIcon.x = 330;
 	shipDamIcon.y = 220;
 	shopScene.addChild(shipDamIcon);
-	let defIcon = new PIXI.Sprite.fromImage("upgradeImages/Defense.png");
+	let defIcon = new PIXI.Sprite.fromImage("UpgradeImages/Defense.png");
 	defIcon.width = 100;
 	defIcon.height = 140;
 	defIcon.x = 485;
 	defIcon.y = 220;
 	shopScene.addChild(defIcon);
-	let bullFiredIcon = new PIXI.Sprite.fromImage("upgradeImages/Bullets.png");
+	let bullFiredIcon = new PIXI.Sprite.fromImage("UpgradeImages/Bullets.png");
 	bullFiredIcon.width = 100;
 	bullFiredIcon.height = 140;
 	bullFiredIcon.x = 635;
 	bullFiredIcon.y = 220;
 	shopScene.addChild(bullFiredIcon);
-	let moneyMultiIcon = new PIXI.Sprite.fromImage("upgradeImages/Money.png");
+	let moneyMultiIcon = new PIXI.Sprite.fromImage("UpgradeImages/Money.png");
 	moneyMultiIcon.width = 100;
 	moneyMultiIcon.height = 140;
 	moneyMultiIcon.x = 785;
@@ -281,14 +281,14 @@ function setUpShop(){
     mouseLabel.y = 450;
     shopScene.addChild(mouseLabel);
 	//Draw 2 Upgrade Icon
-	let mouseDamIcon = new PIXI.Sprite.fromImage("upgradeImages/ClickDam.png");
+	let mouseDamIcon = new PIXI.Sprite.fromImage("UpgradeImages/ClickDam.png");
 	mouseDamIcon.width = 100;
 	mouseDamIcon.height = 140;
 	mouseDamIcon.x = 35;
 	mouseDamIcon.y = 550;
 	shopScene.addChild(mouseDamIcon);
 	
-	let mouseAOEIcon = new PIXI.Sprite.fromImage("upgradeImages/AOE.png");
+	let mouseAOEIcon = new PIXI.Sprite.fromImage("UpgradeImages/AOE.png");
 	mouseAOEIcon.width = 100;
 	mouseAOEIcon.height = 140;
 	mouseAOEIcon.x = 435;
