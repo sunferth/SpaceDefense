@@ -11,7 +11,7 @@ const sceneHeight = app.view.height;
 
 // pre-load the images
 PIXI.loader.
-add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png"]).
+add(["images/Spaceship.png","images/explosions.png","images/SpaceBackground.png","UpgradeImages/AOE.png","UpgradeImages/Box.png","UpgradeImages/Bullets.png","UpgradeImages/ClickDam.png","UpgradeImages/Damage.png","UpgradeImages/Defense.png","UpgradeImages/FireRate.png","UpgradeImages/SpinUpgrade.png","UpgradeImages/Money.png","images/AlienMelee.png","images/AlienRange.png","images/AlienNerf.png"]).
 on("progress",e=>{console.log(`progress=${e.progress}`)}).
 load(setup);
 
@@ -20,7 +20,7 @@ let stage;
 
 // game variables
 let startScene;
-let gameScene,ship,moneyLabel,lifeLabel,shootSound,hitSound,fireballSound;
+let gameScene,ship,moneyLabel,lifeLabel,shootSound,upgradeSound,fireballSound;
 let transitionLabel;
 let transitionScene;
 let MouseButtonAOE;
@@ -97,15 +97,15 @@ function setup() {
     // #6 - Load Sounds
     {
     shootSound = new Howl({
-        src: ['sounds/shoot.wav']
+        src: ['sounds/shots.wav']
     });
 
-    hitSound = new Howl({
-        src: ['sounds/hit.mp3']
+    upgradeSound = new Howl({
+        src: ['sounds/upgrade.wav']
     });
 
     fireballSound = new Howl({
-        src: ['sounds/fireball.mp3']
+        src: ['sounds/hit.mp3']
     });
     }
     // #7 - Load sprite sheet
@@ -338,9 +338,9 @@ function spinUpgrade(){
 		mainShip.rotationDivider/=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[0]));
 		upgrades[0]++;
-		ShipSpin.text = "Cost: "+Math.pow(10,upgrades[0])
+		ShipSpin.text = "Cost: "+Math.pow(10,upgrades[0]);
+        upgradeSound.play();
 	}
-	
 }
 
 function fireUpgrade(){
@@ -348,7 +348,8 @@ function fireUpgrade(){
 		mainShip.ShotsPerSec+=1;
 		increaseScoreBy(-1*Math.pow(10,upgrades[1]));
 		upgrades[1]++;
-		FireButt.text = "Cost: "+Math.pow(10,upgrades[1])
+		FireButt.text = "Cost: "+Math.pow(10,upgrades[1]);
+        upgradeSound.play();
 	}
 }
 
@@ -357,7 +358,8 @@ function shipDamUpgrade(){
 		mainShip.bulletDamage+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[2]));
 		upgrades[2]++;
-		ShipDamButt.text = "Cost: "+Math.pow(10,upgrades[2])
+		ShipDamButt.text = "Cost: "+Math.pow(10,upgrades[2]);
+        upgradeSound.play();
 	}
 }
 
@@ -366,7 +368,8 @@ function shipDefUpgrade(){
 		mainShip.defense+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[3]));
 		upgrades[3]++;
-		ShipDefButt.text = "Cost: "+Math.pow(10,upgrades[3])
+		ShipDefButt.text = "Cost: "+Math.pow(10,upgrades[3]);
+        upgradeSound.play();
 	}
 }
 
@@ -375,7 +378,8 @@ function bulletUpgrade(){
 		mainShip.ShotsToFire+=1;
 		increaseScoreBy(-1*Math.pow(10,upgrades[4]));
 		upgrades[4]++;
-		BulletButt.text = "Cost: "+Math.pow(10,upgrades[4])
+		BulletButt.text = "Cost: "+Math.pow(10,upgrades[4]);
+        upgradeSound.play();
 	}
 }
 
@@ -384,7 +388,8 @@ function moneyUpgrade(){
 		moneyMulti*=1.5;
 		increaseScoreBy(-1*Math.pow(10,upgrades[5]));
 		upgrades[5]++;
-		MoneyButt.text = "Cost: "+Math.pow(10,upgrades[5])
+		MoneyButt.text = "Cost: "+Math.pow(10,upgrades[5]);
+        upgradeSound.play();
 	}
 }
 
@@ -393,7 +398,8 @@ function mouseDamUpgrade(){
 		mouseDam+=2;
 		increaseScoreBy(-1*Math.pow(10,upgrades[6]));
 		upgrades[6]++;
-		MouseButtonDam.text = "Upgrade Cost: "+Math.pow(10,upgrades[6])
+		MouseButtonDam.text = "Upgrade Cost: "+Math.pow(10,upgrades[6]);
+        upgradeSound.play();
 	}
 }
 
@@ -403,7 +409,7 @@ function mouseAOEUpgrade(){
 		increaseScoreBy(-1*Math.pow(10,upgrades[7]));
 		upgrades[7]++;
 		MouseButtonAOE.text = "Upgrade Cost: "+Math.pow(10,upgrades[7]);
-
+        upgradeSound.play();
 	}
 }
 
@@ -567,7 +573,7 @@ function endGame(state = "lose"){
 // Function called every time the user clicks within the web browser
 function clickEvent(e){
     // TODO: Replace with conditions for when a bullet should be fired
-    if(true)
+    if(gameScene.visible == true)
     {
         mainShip.Fire(aliens);
         shootSound.play();
@@ -633,7 +639,6 @@ function gameLoop(){
 		for(let c of aliens){
 			for(let b of bullets){
 				if(rectsIntersect(c,b)){
-					fireballSound.play();
 					c.takeDamage(b.damage);
 					gameScene.removeChild(b);
 					b.isAlive = false;
@@ -677,13 +682,17 @@ function gameLoop(){
 			else{
 				levelNum ++;
 				endWave();
-
 			}
 		}
 	}
 }
 
 function endWave(){
+    while(mainShip.enemyBullets.length > 0)
+    {
+        gameScene.removeChild(mainShip.enemyBullets[0]);
+        mainShip.enemyBullets.splice(0,1);
+    }
 	gameScene.visible = false;
 	shopScene.visible = true;
 	shopScene.addChild(moneyLabel);

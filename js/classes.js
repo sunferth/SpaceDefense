@@ -203,6 +203,7 @@ class Enemy extends PIXI.Sprite{
 		this.health -= damage;
 		if(this.health <= 0){
 			this.isAlive = false;
+            fireballSound.play();
 			money+=5*moneyMulti;
 			moneyLabel.text = "Money: "+money;
 		}
@@ -216,7 +217,7 @@ class Enemy extends PIXI.Sprite{
 
 class MeleeEnemy extends Enemy{
 	constructor(){
-		super("melee",10,200,PIXI.loader.resources["images/AlienMelee.png"].texture);
+		super("melee",10+levelNum,200,PIXI.loader.resources["images/AlienMelee.png"].texture);
 	}
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
@@ -229,13 +230,13 @@ class MeleeEnemy extends Enemy{
 
 class RangeEnemy extends Enemy{
 	constructor(){
-		super("range",10,200,PIXI.loader.resources["images/AlienRange.png"].texture);
-        this.cooldown = 3.0;
+		super("range",10+levelNum,200,PIXI.loader.resources["images/AlienRange.png"].texture);
+        this.cooldown = 2.5;
         this.currentCooldown = 0.0;
 	}
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 75000){
-			this.speed /= 1.05;
+			this.speed /= 1.02;
             // Shoot a shot every (this.cooldown) seconds 
             this.currentCooldown += dt;
             if(this.currentCooldown >= this.cooldown)
@@ -286,7 +287,7 @@ class EnemyBullet extends PIXI.Graphics{
 
 class NerfEnemy extends Enemy{
 	constructor(){
-		super("nerf");
+		super("nerf",10+levelNum,200,PIXI.loader.resources["images/AlienNerf.png"].texture);
 	}
 	attack(dt){
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
