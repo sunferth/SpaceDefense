@@ -1,0 +1,32 @@
+	***Adds a Background Image***
+	let background = PIXI.Sprite.fromImage("images/SpaceBackground.png");
+	background.width = 1024;
+	background.height = 768;
+	background.x = 0;
+	background.y = 0;
+	startScene.addChild(background);
+	
+	***Adds a Label***
+	let transitionLabel = new PIXI.Text("WAVE COMPLETE!");
+    transitionLabel.style = new PIXI.TextStyle({
+        fill: 0xFFFFFF,
+        fontSize: 110,
+        fontFamily: "Futura",
+        stroke:0xFF0000,
+        stokeThickness: 6
+    });
+    transitionLabel.x = 35;
+    transitionLabel.y = 350;
+    startScene.addChild(transitionLabel);
+	
+	***Adds a Button***
+	let startButton = new PIXI.Text("Protect your ship!");
+    startButton.style = buttonStyle;
+    startButton.x = 300;
+    startButton.y = sceneHeight - 100;
+    startButton.interactive = true;
+    startButton.buttonMode = true;
+    startButton.on("pointerup",startGame);
+    startButton.on('pointerover',e=> e.target.alpha = 0.7);
+    startButton.on('pointerout',e=> e.currentTarget.alpha = 1.0);
+    startScene.addChild(startButton);
