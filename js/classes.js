@@ -67,7 +67,7 @@ class Ship extends PIXI.Sprite{
     // Take damage, optionally adding a status effect
     takeDamage(dmgAmount, statusEffect="none") {
 		// Reduce incoming damage by the defense value
-        dmgAmount /= (3+this.defense)/3;
+        dmgAmount /= Math.floor((3+this.defense)/3);
         
 		if(dmgAmount < 0){
 			return;
@@ -228,7 +228,7 @@ class RangeEnemy extends Enemy{
     // Slow down at ~270 pixels away, stop and fire upon the ship once within range
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 75000){
-			this.speed /= 1.02;
+			this.speed /= 1.05;
             // Shoot a shot every (this.cooldown) seconds 
             this.currentCooldown += dt;
             if(this.currentCooldown >= this.cooldown)

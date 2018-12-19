@@ -496,7 +496,6 @@ function createLabelsAndButtons(){
     lifeLabel.y = 5;
     gameScene.addChild(lifeLabel);
     mainShip.takeDamage(0);
-
 }
 
 //Edits Money and updates labels
@@ -679,7 +678,6 @@ function endGame(state = "lose"){
 
 //Function called every time the user clicks within the web browser
 function clickEvent(e){
-    // TODO: Replace with conditions for when a bullet should be fired
     if(gameScene.visible == true)
     {
         mainShip.fire(aliens);
