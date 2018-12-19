@@ -2,12 +2,11 @@ class Ship extends PIXI.Sprite{
     constructor(x=sceneWidth/2,y=sceneHeight/2){
         super(PIXI.loader.resources["images/Spaceship.png"].texture);
         this.anchor.set(0.5,0.5);
-        this.scale.set(0.2);
         this.x = x;
         this.y = y;
 		this.targetType = "close";
-		this.health = 100;
-		this.maxHealth = 100;
+		this.health = 1000;
+		this.maxHealth = 1000;
 		this.rotationDivider = 256;
 		this.ShotsPerSec = 1;
 		this.ShotsToFire = 1;
@@ -82,13 +81,12 @@ class Ship extends PIXI.Sprite{
 	}
 	
     takeDamage(dmgAmount, statusEffect="none") {
-		dmgAmount -= this.defense;
-		lifeLabel.text = "Health: "+this.health;
-		console.log("here");
+		dmgAmount /= (3+this.defense)/3;
 		if(dmgAmount < 0){
 			return;
 		}
         this.health -= dmgAmount;
+		lifeLabel.text = "Health: "+this.health;
 
         if(this.health <= 0)
         {
@@ -108,7 +106,7 @@ class Ship extends PIXI.Sprite{
 
 
 class Bullet extends PIXI.Graphics{
-    constructor(color=0xFF0000, x=0, y=0, rotation = mainShip.rotation, damage = 1){
+    constructor(color=0xFF0000, x=0, y=0, rotation = mainShip.rotation, damage = 10){
         super();
         this.beginFill(color);
         this.drawRect(-2,-3,4,6);
@@ -168,10 +166,9 @@ class Wave{
 }
 
 class Enemy extends PIXI.Sprite{
-	constructor(type = "melee", health = 10, speed = 200, texture){
+	constructor(type = "melee", health = 100, speed = 250, texture){
         super(texture);
         this.anchor.set(0.5,0.5);
-        this.scale.set(0.3);
 		this.type = type;
 		this.health = health;
         this.speed = speed;
@@ -216,20 +213,19 @@ class Enemy extends PIXI.Sprite{
 
 class MeleeEnemy extends Enemy{
 	constructor(){
-		super("melee",10+levelNum,200,PIXI.loader.resources["images/AlienMelee.png"].texture);
+		super("melee",Math.floor(10*Math.pow(1.1,levelNum)),250,PIXI.loader.resources["images/AlienMelee.png"].texture);
 	}
 	attack(dt){
 		if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
 			this.isAlive = false;
-            mainShip.takeDamage(2);
-            console.log(mainShip.health);
+            mainShip.takeDamage(20+levelNum);
 	    }
 	}
 }
 
 class RangeEnemy extends Enemy{
 	constructor(){
-		super("range",10+levelNum,200,PIXI.loader.resources["images/AlienRange.png"].texture);
+		super("range",Math.floor(10*Math.pow(1.1,levelNum)),250,PIXI.loader.resources["images/AlienRange.png"].texture);
         this.cooldown = 2.5;
         this.currentCooldown = 0.0;
 	}
@@ -256,7 +252,7 @@ class EnemyBullet extends PIXI.Graphics{
         this.active = false;
         this.x = x;
         this.y = y;
-        this.speed = 200;
+        this.speed = 250;
 		this.rotation = rotation;
 		this.fwd = dir;
         this.isAlive = true;
@@ -268,8 +264,7 @@ class EnemyBullet extends PIXI.Graphics{
         this.y += this.fwd.y * this.speed * dt;
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 2000){
             this.isAlive = false;
-            mainShip.takeDamage(Math.floor(1 + levelNum/3));
-            console.log(mainShip.health);
+            mainShip.takeDamage(10 + levelNum);
         }
     }
 }
@@ -286,13 +281,12 @@ class EnemyBullet extends PIXI.Graphics{
 
 class NerfEnemy extends Enemy{
 	constructor(){
-		super("nerf",10+levelNum,200,PIXI.loader.resources["images/AlienNerf.png"].texture);
+		super("nerf",Math.floor(10*Math.pow(1.1,levelNum)),250,PIXI.loader.resources["images/AlienNerf.png"].texture);
 	}
 	attack(dt){
         if((((this.x - mainShip.x)*(this.x - mainShip.x)) + ((this.y - mainShip.y)*(this.y - mainShip.y))) < 5000){
             this.isAlive = false;
-            mainShip.takeDamage(2, "nerf");
-            console.log(mainShip.health);
+            mainShip.takeDamage(20+levelNum, "nerf");
         }
 	}
 }
